@@ -37,36 +37,49 @@
 
 ### 도메인 설계
 
-![domain model](https://i.ibb.co/V3f2bm0/Screenshot-2022-12-28-at-7-56-03-PM.png)
+![domain model](https://i.ibb.co/18yfdLR/Screenshot-2022-12-29-at-3-52-06-PM.png)
 
 ### 엔티티
 
 - Member
-    - id : Long
-    - name : String
-    - email : String
-    - password : String
-    - age : Integer
-    - board : Board
-    - membersWhoLikeMe : List<Member>
-    - membersILike : List<Member>
-    - chatRoomList : List<ChatRoom>
+  - id : Long
+  - name : String
+  - email : String
+  - password : String
+  - age : Integer
+  - post : Post
+  - membersWhoLikeMe : List<Member>
+  - membersILike : List<Member>
+  - chatRoomList : List<ChatRoom>
+  - createdDate : LocalDateTime
+  - updatedDate : LocalDateTime
+- MemberLike
+  - id : Long
+  - likeFrom : Member
+  - likeTo : Member
 - Board
-    - number_of_person : Integer
-    - image : String
-    - coment : String
-    - location : ?
-    - createdDate : LocalDateTime
+  - number_of_person : Integer
+  - image : String
+  - content : String
+  - locationX : Integer
+  - locationY : Integer
+  - areaName : String
+  - createdDate : LocalDateTime
+  - updatedDate : LocalDateTime
 - ChatRoom
-    - id : Long
-    - members : List<Member>
-    - messages : List<Message>
+  - id : Long
+  - createdDate : LocalDateTime
+  - updatedDate : LocalDateTime
+- ChatRoomInfo
+  - id : Long
+  - member : Member
+  - chatRoom : ChatRoom
 - Message
-    - id : Long
-    - messageFrom : Member
-    - chatRoom : ChatRoom
-    - content : String
-    - createdDate : LocalDateTime
+  - id : Long
+  - messageFrom : Member
+  - chatRoom : ChatRoom
+  - content : String
+  - createdDate : LocalDateTime
 
 ERD
-![ERD](https://i.ibb.co/kXSn8vk/Screenshot-2022-12-28-at-7-52-28-PM.png)
+![ERD](https://i.ibb.co/LYJhNrD/Screenshot-2022-12-29-at-3-43-39-PM.png)

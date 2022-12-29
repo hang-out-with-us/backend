@@ -1,8 +1,14 @@
+# 몇명이서 오셨어요
+
+## 컨셉
+
+번화가에서 다른 사람들과 같이 만나서 놀고 싶을 때 실시간으로 매칭시켜주는 앱.
+
 ## 환경
 
 - DB
     - MariaDB
-    - h2 (test)
+    - h2 (local)
 - BackEnd
     - JAVA
     - Spring Boot

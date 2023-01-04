@@ -7,7 +7,7 @@
 ## 환경
 
 - DB
-    - MariaDB
+    - MariaDB (dev, prod)
     - h2 (local)
 - BackEnd
     - JAVA
@@ -48,44 +48,51 @@
 ### 엔티티
 
 - Member
-  - id : Long
-  - name : String
-  - email : String
-  - password : String
-  - age : Integer
-  - post : Post
-  - membersWhoLikeMe : List<Member>
-  - membersILike : List<Member>
-  - chatRoomList : List<ChatRoom>
-  - createdDate : LocalDateTime
-  - updatedDate : LocalDateTime
+    - id : Long
+    - name : String
+    - email : String
+    - password : String
+    - age : Integer
+    - post : Post
+    - membersWhoLikeMe : List<Member>
+    - membersILike : List<Member>
+    - chatRoomList : List<ChatRoom>
+    - createdDate : LocalDateTime
+    - updatedDate : LocalDateTime
 - MemberLike
-  - id : Long
-  - likeFrom : Member
-  - likeTo : Member
+    - id : Long
+    - likeFrom : Member
+    - likeTo : Member
 - Board
-  - number_of_person : Integer
-  - image : String
-  - content : String
-  - locationX : Integer
-  - locationY : Integer
-  - areaName : String
-  - createdDate : LocalDateTime
-  - updatedDate : LocalDateTime
+    - number_of_person : Integer
+    - image : String
+    - content : String
+    - locationX : Integer
+    - locationY : Integer
+    - areaName : String
+    - createdDate : LocalDateTime
+    - updatedDate : LocalDateTime
 - ChatRoom
-  - id : Long
-  - createdDate : LocalDateTime
-  - updatedDate : LocalDateTime
+    - id : Long
+    - createdDate : LocalDateTime
+    - updatedDate : LocalDateTime
 - ChatRoomInfo
-  - id : Long
-  - member : Member
-  - chatRoom : ChatRoom
+    - id : Long
+    - member : Member
+    - chatRoom : ChatRoom
 - Message
-  - id : Long
-  - messageFrom : Member
-  - chatRoom : ChatRoom
-  - content : String
-  - createdDate : LocalDateTime
+    - id : Long
+    - messageFrom : Member
+    - chatRoom : ChatRoom
+    - content : String
+    - createdDate : LocalDateTime
 
 ERD
 ![ERD](https://i.ibb.co/LYJhNrD/Screenshot-2022-12-29-at-3-43-39-PM.png)
+
+## TODO
+
+- [x] local, dev, prod 개발 환경 분리
+- [ ] 배포 자동화
+- [ ] password 암호화
+- [ ] ExceptionHandler, ControllerAdvice 적용해서 예외처리

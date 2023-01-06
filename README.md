@@ -93,6 +93,6 @@ ERD
 ## TODO
 
 - [x] local, dev, prod 개발 환경 분리
-- [ ] 배포 자동화
+- [x] 배포 자동화
 - [ ] password 암호화
 - [ ] ExceptionHandler, ControllerAdvice 적용해서 예외처리

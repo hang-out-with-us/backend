@@ -34,10 +34,6 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        env:
-          DB_URL: ${{secrets.DB_URL}}
-          DB_USER: ${{secrets.DB_USER}}
-          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
         run: ./gradlew clean build -x check -Pprofile=dev
       
       # 디렉토리 생성
@@ -46,7 +42,7 @@ jobs:
 
       # Jar 파일 복사
       - name: Copy Jar
-        run: cp ./build/libs/*.jar ./deploy
+        run: cp ./build/libs/*.jar ./appspec.yml ./deploy.sh ./deploy
 
       - name: Make zip file
         run: zip -r ./hang_out_with_us.zip ./deploy
@@ -61,3 +57,16 @@ jobs:
 
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./hang_out_with_us.zip s3://hang-out-with-us-deploy/
+
+      # Deploy
+      - name: Deploy
+        env:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws deploy create-deployment \
+            --application-name hang-out-with-us \
+            --deployment-group-name HOWU-group \
+            --file-exists-behavior OVERWRITE \
+            --s3-location bucket=hang-out-with-us-deploy,bundleType=zip,key=hang_out_with_us.zip \
+            --region ap-northeast-2

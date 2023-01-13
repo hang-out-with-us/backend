@@ -18,4 +18,8 @@ public class PostController {
         postService.post(memberId, postDto);
     }
 
+    @PutMapping("/{postId}")
+    public void update(@PathVariable Long postId, @RequestBody PostDto postDto) {
+        postService.update(postId, postDto);
+    }
 }

@@ -33,4 +33,14 @@ public class PostService {
         postRepository.save(post);
     }
 
+    public void update(Long postId, PostDto postDto) {
+        Post post = postRepository.findById(postId).orElseThrow();
+        String image = postDto.getImage() == null ? post.getImage() : postDto.getImage();
+        String content = postDto.getContent() == null ? post.getContent() : postDto.getContent();
+        Integer locationX = postDto.getLocationX() == null ? post.getLocationX() : postDto.getLocationX();
+        Integer locationY = postDto.getLocationY() == null ? post.getLocationY() : postDto.getLocationY();
+        String areaName = postDto.getAreaName() == null ? post.getAreaName() : postDto.getAreaName();
+
+        post.updatePost(image, content, locationX, locationY, areaName);
+    }
 }

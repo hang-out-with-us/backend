@@ -20,7 +20,7 @@ public class PostService {
         this.memberRepository = memberRepository;
     }
 
-    public void post(Long memberId, PostDto postDto) {
+    public PostDto post(Long memberId, PostDto postDto) {
         Post post = Post.builder()
                 .image(postDto.getImage())
                 .content(postDto.getContent())
@@ -31,10 +31,12 @@ public class PostService {
         Member member = memberRepository.findById(memberId).orElseThrow();
         member.addPost(post);
         postRepository.save(post);
+        return new PostDto(post);
     }
 
-    public void update(Long postId, PostDto postDto) {
+    public PostDto update(Long postId, PostDto postDto) {
         Post post = postRepository.findById(postId).orElseThrow();
+
         String image = postDto.getImage() == null ? post.getImage() : postDto.getImage();
         String content = postDto.getContent() == null ? post.getContent() : postDto.getContent();
         Integer locationX = postDto.getLocationX() == null ? post.getLocationX() : postDto.getLocationX();
@@ -42,5 +44,8 @@ public class PostService {
         String areaName = postDto.getAreaName() == null ? post.getAreaName() : postDto.getAreaName();
 
         post.updatePost(image, content, locationX, locationY, areaName);
+
+        return new PostDto(post);
     }
+
 }

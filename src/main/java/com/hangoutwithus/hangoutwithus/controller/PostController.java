@@ -14,12 +14,12 @@ public class PostController {
     }
 
     @PostMapping("/{memberId}")
-    public void post(@PathVariable Long memberId, @RequestBody PostDto postDto) {
-        postService.post(memberId, postDto);
+    public PostDto post(@PathVariable Long memberId, @RequestBody PostDto postDto) {
+        return postService.post(memberId, postDto);
     }
 
     @PutMapping("/{postId}")
-    public void update(@PathVariable Long postId, @RequestBody PostDto postDto) {
-        postService.update(postId, postDto);
+    public PostDto update(@PathVariable Long postId, @RequestBody PostDto postDto) {
+        return postService.update(postId, postDto);
     }
 }

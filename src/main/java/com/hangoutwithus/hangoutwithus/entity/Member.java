@@ -27,8 +27,8 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private Integer age;
 
-    @OneToOne
-    @JoinColumn(name = "member_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
     private Post post;
 
     public Member(MemberBaseDto memberBaseDto) {

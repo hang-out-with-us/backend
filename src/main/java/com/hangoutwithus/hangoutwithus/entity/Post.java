@@ -3,7 +3,10 @@ package com.hangoutwithus.hangoutwithus.entity;
 
 import lombok.Getter;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 @Entity
 @Getter
@@ -22,6 +25,6 @@ public class Post extends BaseEntity {
 
     private String areaName;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "post")
     private Member member;
 }

@@ -22,4 +22,9 @@ public class PostController {
     public PostDto update(@PathVariable Long postId, @RequestBody PostDto postDto) {
         return postService.update(postId, postDto);
     }
+
+    @DeleteMapping("/{postId}")
+    public void delete(@PathVariable Long postId) {
+        postService.delete(postId);
+    }
 }

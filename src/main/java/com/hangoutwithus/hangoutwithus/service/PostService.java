@@ -48,4 +48,7 @@ public class PostService {
         return new PostDto(post);
     }
 
+    public void delete(Long postId) {
+        memberRepository.deleteById(postId);
+    }
 }

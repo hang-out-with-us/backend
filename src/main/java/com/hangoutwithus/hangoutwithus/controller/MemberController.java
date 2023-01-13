@@ -30,22 +30,9 @@ public class MemberController {
         return memberService.findOne(id);
     }
 
-    @PutMapping("/{id}/password")
-    @ApiOperation("회원 비밀번호 수정")
-    public MemberBaseDto updatePassword(@PathVariable Long id, @RequestBody String password) {
-        return memberService.updatePassword(id, password);
-    }
-
-    @PutMapping("/{id}/name")
-    @ApiOperation("회원 이름 수정")
-    public MemberBaseDto updateName(@PathVariable Long id, @RequestBody String name) {
-        return memberService.updateName(id, name);
-    }
-
-    @PutMapping("/{id}/email")
-    @ApiOperation("회원 이메일 수정")
-    public MemberBaseDto updateEmail(@PathVariable Long id, @RequestBody String email) {
-        return memberService.updateEmail(id, email);
+    @PutMapping("/{id}")
+    public MemberBaseDto update(@PathVariable Long id, @RequestBody MemberBaseDto memberBaseDto) {
+        return memberService.update(id, memberBaseDto);
     }
 
     @DeleteMapping("/{id}")

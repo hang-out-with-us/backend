@@ -34,23 +34,18 @@ public class MemberService {
         return new MemberBaseDto(member);
     }
 
+    public MemberBaseDto update(Long id, MemberBaseDto memberBaseDto) {
+        Member member = memberRepository.findById(id).orElseThrow();
+        String name = memberBaseDto.getName() == null ? member.getName() : memberBaseDto.getName();
+        String email = memberBaseDto.getEmail() == null ? member.getEmail() : memberBaseDto.getEmail();
+        String password = memberBaseDto.getPassword() == null ? member.getPassword() : memberBaseDto.getPassword();
+        Integer age = memberBaseDto.getAge() == null ? member.getAge() : memberBaseDto.getAge();
+        member.update(name, email, password, age);
+
+        return new MemberBaseDto(member);
+    }
+
     public void delete(Long id) {
         memberRepository.deleteById(id);
-    }
-
-    public MemberBaseDto updatePassword(Long id, String password) {
-        Member member = memberRepository.findById(id).orElseThrow();
-        return new MemberBaseDto(member);
-    }
-
-    public MemberBaseDto updateName(Long id, String name) {
-        Member member = memberRepository.findById(id).orElseThrow();
-        return new MemberBaseDto(member);
-    }
-
-    public MemberBaseDto updateEmail(Long id, String email) {
-        Member member = memberRepository.findById(id).orElseThrow();
-        member.updateEmail(email);
-        return new MemberBaseDto(member);
     }
 }

@@ -1,6 +1,7 @@
 package com.hangoutwithus.hangoutwithus.entity;
 
-import com.hangoutwithus.hangoutwithus.dto.MemberBaseDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,8 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Member extends BaseEntity {
     @Id
     @GeneratedValue
@@ -30,13 +33,6 @@ public class Member extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
-
-    public Member(MemberBaseDto memberBaseDto) {
-        this.name = memberBaseDto.getName();
-        this.email = memberBaseDto.getEmail();
-        this.password = memberBaseDto.getPassword();
-        this.age = memberBaseDto.getAge();
-    }
 
     public void addPost(Post post) {
         this.post = post;

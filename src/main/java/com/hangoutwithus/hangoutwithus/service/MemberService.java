@@ -19,7 +19,12 @@ public class MemberService {
     }
 
     public MemberBaseDto create(MemberBaseDto memberBaseDto) {
-        Member member = new Member(memberBaseDto);
+        Member member = Member.builder()
+                .name(memberBaseDto.getName())
+                .email(memberBaseDto.getEmail())
+                .password(memberBaseDto.getPassword())
+                .age(memberBaseDto.getAge())
+                .build();
         return new MemberBaseDto(memberRepository.save(member));
     }
 

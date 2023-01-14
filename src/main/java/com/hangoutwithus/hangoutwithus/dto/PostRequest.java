@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PostDto {
+public class PostRequest {
     String image;
     String content;
 
@@ -16,7 +16,7 @@ public class PostDto {
 
     String areaName;
 
-    public PostDto(Post post) {
+    public PostRequest(Post post) {
         this.image = post.getImage();
         this.content = post.getContent();
         this.locationX = post.getLocationX();

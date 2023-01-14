@@ -1,6 +1,6 @@
 package com.hangoutwithus.hangoutwithus.controller;
 
-import com.hangoutwithus.hangoutwithus.dto.PostDto;
+import com.hangoutwithus.hangoutwithus.dto.PostRequest;
 import com.hangoutwithus.hangoutwithus.service.PostService;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,13 +14,13 @@ public class PostController {
     }
 
     @PostMapping("/{memberId}")
-    public PostDto post(@PathVariable Long memberId, @RequestBody PostDto postDto) {
-        return postService.post(memberId, postDto);
+    public PostRequest post(@PathVariable Long memberId, @RequestBody PostRequest postRequest) {
+        return postService.post(memberId, postRequest);
     }
 
     @PutMapping("/{postId}")
-    public PostDto update(@PathVariable Long postId, @RequestBody PostDto postDto) {
-        return postService.update(postId, postDto);
+    public PostRequest update(@PathVariable Long postId, @RequestBody PostRequest postRequest) {
+        return postService.update(postId, postRequest);
     }
 
     @DeleteMapping("/{postId}")

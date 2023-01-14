@@ -1,6 +1,6 @@
 package com.hangoutwithus.hangoutwithus.service;
 
-import com.hangoutwithus.hangoutwithus.dto.MemberBaseDto;
+import com.hangoutwithus.hangoutwithus.dto.MemberRequest;
 import com.hangoutwithus.hangoutwithus.entity.Member;
 import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
 import lombok.Getter;
@@ -18,31 +18,31 @@ public class MemberService {
         this.memberRepository = memberRepository;
     }
 
-    public MemberBaseDto create(MemberBaseDto memberBaseDto) {
+    public MemberRequest create(MemberRequest memberRequest) {
         Member member = Member.builder()
-                .name(memberBaseDto.getName())
-                .email(memberBaseDto.getEmail())
-                .password(memberBaseDto.getPassword())
-                .age(memberBaseDto.getAge())
+                .name(memberRequest.getName())
+                .email(memberRequest.getEmail())
+                .password(memberRequest.getPassword())
+                .age(memberRequest.getAge())
                 .build();
-        return new MemberBaseDto(memberRepository.save(member));
+        return new MemberRequest(memberRepository.save(member));
     }
 
     @Transactional(readOnly = true)
-    public MemberBaseDto findOne(Long id) {
+    public MemberRequest findOne(Long id) {
         Member member = memberRepository.findById(id).orElseThrow();
-        return new MemberBaseDto(member);
+        return new MemberRequest(member);
     }
 
-    public MemberBaseDto update(Long id, MemberBaseDto memberBaseDto) {
+    public MemberRequest update(Long id, MemberRequest memberRequest) {
         Member member = memberRepository.findById(id).orElseThrow();
-        String name = memberBaseDto.getName() == null ? member.getName() : memberBaseDto.getName();
-        String email = memberBaseDto.getEmail() == null ? member.getEmail() : memberBaseDto.getEmail();
-        String password = memberBaseDto.getPassword() == null ? member.getPassword() : memberBaseDto.getPassword();
-        Integer age = memberBaseDto.getAge() == null ? member.getAge() : memberBaseDto.getAge();
+        String name = memberRequest.getName() == null ? member.getName() : memberRequest.getName();
+        String email = memberRequest.getEmail() == null ? member.getEmail() : memberRequest.getEmail();
+        String password = memberRequest.getPassword() == null ? member.getPassword() : memberRequest.getPassword();
+        Integer age = memberRequest.getAge() == null ? member.getAge() : memberRequest.getAge();
         member.update(name, email, password, age);
 
-        return new MemberBaseDto(member);
+        return new MemberRequest(member);
     }
 
     public void delete(Long id) {

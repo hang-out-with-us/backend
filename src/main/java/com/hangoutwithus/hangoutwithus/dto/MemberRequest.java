@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class MemberBaseDto {
+public class MemberRequest {
     String name;
 
     String email;
@@ -18,7 +18,7 @@ public class MemberBaseDto {
 
     Integer age;
 
-    public MemberBaseDto(Member member) {
+    public MemberRequest(Member member) {
         this.name = member.getName();
         this.email = member.getEmail();
         this.age = member.getAge();

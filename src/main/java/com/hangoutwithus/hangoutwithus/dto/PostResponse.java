@@ -8,8 +8,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PostRequest {
+public class PostResponse {
+    Long id;
+
     String image;
+
     String content;
 
     Integer locationX;
@@ -18,11 +21,13 @@ public class PostRequest {
 
     String areaName;
 
-    public PostRequest(Post post) {
+    public PostResponse(Post post) {
+        this.id = post.getId();
         this.image = post.getImage();
         this.content = post.getContent();
         this.locationX = post.getLocationX();
         this.locationY = post.getLocationY();
         this.areaName = post.getAreaName();
     }
+
 }

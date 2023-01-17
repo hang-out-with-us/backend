@@ -1,6 +1,7 @@
 package com.hangoutwithus.hangoutwithus.service;
 
 import com.hangoutwithus.hangoutwithus.dto.PostRequest;
+import com.hangoutwithus.hangoutwithus.dto.PostResponse;
 import com.hangoutwithus.hangoutwithus.entity.Member;
 import com.hangoutwithus.hangoutwithus.entity.Post;
 import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
@@ -20,7 +21,7 @@ public class PostService {
         this.memberRepository = memberRepository;
     }
 
-    public PostRequest post(Long memberId, PostRequest postRequest) {
+    public PostResponse post(Long memberId, PostRequest postRequest) {
         Post post = Post.builder()
                 .image(postRequest.getImage())
                 .content(postRequest.getContent())
@@ -30,11 +31,11 @@ public class PostService {
                 .build();
         Member member = memberRepository.findById(memberId).orElseThrow();
         member.addPost(post);
-        postRepository.save(post);
-        return new PostRequest(post);
+        post = postRepository.save(post);
+        return new PostResponse(post);
     }
 
-    public PostRequest update(Long postId, PostRequest postRequest) {
+    public PostResponse update(Long postId, PostRequest postRequest) {
         Post post = postRepository.findById(postId).orElseThrow();
 
         String image = postRequest.getImage() == null ? post.getImage() : postRequest.getImage();
@@ -45,10 +46,14 @@ public class PostService {
 
         post.updatePost(image, content, locationX, locationY, areaName);
 
-        return new PostRequest(post);
+        return new PostResponse(post);
     }
 
     public void delete(Long postId) {
         memberRepository.deleteById(postId);
+    }
+
+    public PostResponse findById(Long postId) {
+        return new PostResponse(postRepository.findById(postId).orElseThrow());
     }
 }

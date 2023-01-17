@@ -1,24 +1,24 @@
 package com.hangoutwithus.hangoutwithus.dto;
 
-
 import com.hangoutwithus.hangoutwithus.entity.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
-public class MemberBaseDto {
+public class MemberResponse {
+    Long id;
+
     String name;
 
     String email;
 
-    String password;
-
     Integer age;
 
-    public MemberBaseDto(Member member) {
+    public MemberResponse(Member member) {
+        this.id = member.getId();
         this.name = member.getName();
         this.email = member.getEmail();
         this.age = member.getAge();

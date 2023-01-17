@@ -1,6 +1,7 @@
 package com.hangoutwithus.hangoutwithus.controller;
 
-import com.hangoutwithus.hangoutwithus.dto.MemberBaseDto;
+import com.hangoutwithus.hangoutwithus.dto.MemberRequest;
+import com.hangoutwithus.hangoutwithus.dto.MemberResponse;
 import com.hangoutwithus.hangoutwithus.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,33 +20,20 @@ public class MemberController {
 
     @PostMapping("/")
     @ApiOperation(value = "회원가입")
-    public MemberBaseDto create(@RequestBody MemberBaseDto memberbaseDto) {
+    public MemberResponse create(@RequestBody MemberRequest memberbaseDto) {
         System.out.println(memberbaseDto.getName());
         return memberService.create(memberbaseDto);
     }
 
     @GetMapping("/{id}")
     @ApiOperation(value = "회원 정보 조회")
-    public MemberBaseDto findOne(@PathVariable Long id) {
+    public MemberResponse findOne(@PathVariable Long id) {
         return memberService.findOne(id);
     }
 
-    @PutMapping("/{id}/password")
-    @ApiOperation("회원 비밀번호 수정")
-    public MemberBaseDto updatePassword(@PathVariable Long id, @RequestBody String password) {
-        return memberService.updatePassword(id, password);
-    }
-
-    @PutMapping("/{id}/name")
-    @ApiOperation("회원 이름 수정")
-    public MemberBaseDto updateName(@PathVariable Long id, @RequestBody String name) {
-        return memberService.updateName(id, name);
-    }
-
-    @PutMapping("/{id}/email")
-    @ApiOperation("회원 이메일 수정")
-    public MemberBaseDto updateEmail(@PathVariable Long id, @RequestBody String email) {
-        return memberService.updateEmail(id, email);
+    @PutMapping("/{id}")
+    public MemberResponse update(@PathVariable Long id, @RequestBody MemberRequest memberRequest) {
+        return memberService.update(id, memberRequest);
     }
 
     @DeleteMapping("/{id}")

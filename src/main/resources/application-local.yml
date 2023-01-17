@@ -4,9 +4,11 @@ spring:
     url: jdbc:h2:tcp://localhost/~/hangoutwithus;MODE=MariaDB;DATABASE_TO_LOWER=TRUE
     username: sa
     password:
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
   jpa:
     hibernate:
       ddl-auto: create
@@ -14,3 +16,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+        type: trace

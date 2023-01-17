@@ -34,6 +34,7 @@
 - 게시글
     - 등록
     - 수정
+        - 이미지 업로드
     - 삭제
 - 추천 기능
     - 가까운 지역에서 인원 수와 관심사가 맞는 사람을 추천
@@ -94,5 +95,6 @@ ERD
 
 - [x] local, dev, prod 개발 환경 분리
 - [x] 배포 자동화
+- [ ] 파일 업로드 처리
 - [ ] password 암호화
 - [ ] ExceptionHandler, ControllerAdvice 적용해서 예외처리

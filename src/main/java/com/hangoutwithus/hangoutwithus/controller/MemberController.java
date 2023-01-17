@@ -1,6 +1,7 @@
 package com.hangoutwithus.hangoutwithus.controller;
 
 import com.hangoutwithus.hangoutwithus.dto.MemberRequest;
+import com.hangoutwithus.hangoutwithus.dto.MemberResponse;
 import com.hangoutwithus.hangoutwithus.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,19 +20,19 @@ public class MemberController {
 
     @PostMapping("/")
     @ApiOperation(value = "회원가입")
-    public MemberRequest create(@RequestBody MemberRequest memberbaseDto) {
+    public MemberResponse create(@RequestBody MemberRequest memberbaseDto) {
         System.out.println(memberbaseDto.getName());
         return memberService.create(memberbaseDto);
     }
 
     @GetMapping("/{id}")
     @ApiOperation(value = "회원 정보 조회")
-    public MemberRequest findOne(@PathVariable Long id) {
+    public MemberResponse findOne(@PathVariable Long id) {
         return memberService.findOne(id);
     }
 
     @PutMapping("/{id}")
-    public MemberRequest update(@PathVariable Long id, @RequestBody MemberRequest memberRequest) {
+    public MemberResponse update(@PathVariable Long id, @RequestBody MemberRequest memberRequest) {
         return memberService.update(id, memberRequest);
     }
 

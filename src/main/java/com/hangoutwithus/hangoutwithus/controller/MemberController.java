@@ -18,12 +18,6 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    @PostMapping("/")
-    @ApiOperation(value = "회원가입")
-    public MemberResponse signup(@RequestBody MemberRequest memberRequest) {
-        return memberService.signup(memberRequest);
-    }
-
     @GetMapping("/{id}")
     @ApiOperation(value = "회원 정보 조회")
     public MemberResponse findOne(@PathVariable Long id) {

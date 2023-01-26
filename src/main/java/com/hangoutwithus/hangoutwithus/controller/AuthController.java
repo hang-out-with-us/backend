@@ -35,7 +35,6 @@ public class AuthController {
     @PostMapping("/signup")
     @ApiOperation(value = "회원가입")
     public MemberResponse signup(@RequestBody MemberRequest memberRequest) {
-        System.out.println(memberRequest.getPassword());
         return memberService.signup(memberRequest);
     }
 }

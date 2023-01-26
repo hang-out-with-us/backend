@@ -30,8 +30,7 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private Integer age;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "post_id")
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private Post post;
 
     @Enumerated(EnumType.STRING)

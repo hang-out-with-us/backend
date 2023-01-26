@@ -1,15 +1,24 @@
 package com.hangoutwithus.hangoutwithus.service;
 
+import com.hangoutwithus.hangoutwithus.dto.LoginDto;
 import com.hangoutwithus.hangoutwithus.dto.MemberRequest;
 import com.hangoutwithus.hangoutwithus.dto.MemberResponse;
+import com.hangoutwithus.hangoutwithus.dto.TokenDto;
 import com.hangoutwithus.hangoutwithus.entity.Member;
+import com.hangoutwithus.hangoutwithus.jwt.JwtFilter;
 import com.hangoutwithus.hangoutwithus.jwt.JwtTokenProvider;
 import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -46,6 +55,21 @@ public class MemberService implements UserDetailsService {
                 .age(memberRequest.getAge())
                 .build();
         return new MemberResponse(memberRepository.save(member));
+    }
+
+    public ResponseEntity<TokenDto> authorize(LoginDto loginDto) {
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword());
+
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = jwtTokenProvider.createToken(authentication);
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
+
+        return new ResponseEntity<>(new TokenDto(jwt), httpHeaders, HttpStatus.OK);
     }
 
     @Transactional(readOnly = true)

@@ -20,9 +20,9 @@ public class MemberController {
 
     @PostMapping("/")
     @ApiOperation(value = "회원가입")
-    public MemberResponse create(@RequestBody MemberRequest memberbaseDto) {
-        System.out.println(memberbaseDto.getName());
-        return memberService.create(memberbaseDto);
+    public MemberResponse signup(@RequestBody MemberRequest memberRequest) {
+        System.out.println(memberRequest.getName());
+        return memberService.signup(memberRequest);
     }
 
     @GetMapping("/{id}")

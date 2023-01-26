@@ -21,7 +21,6 @@ public class MemberController {
     @PostMapping("/")
     @ApiOperation(value = "회원가입")
     public MemberResponse signup(@RequestBody MemberRequest memberRequest) {
-        System.out.println(memberRequest.getName());
         return memberService.signup(memberRequest);
     }
 

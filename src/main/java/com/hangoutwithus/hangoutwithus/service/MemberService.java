@@ -27,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.Collections;
 
 @Slf4j
@@ -92,8 +93,8 @@ public class MemberService implements UserDetailsService {
         return new MemberResponse(member);
     }
 
-    public void delete(Long id) {
-        memberRepository.deleteById(id);
+    public void delete(Principal principal) {
+        memberRepository.deleteMemberByEmail(principal.getName());
     }
 
     @Override

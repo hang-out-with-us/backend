@@ -30,7 +30,7 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private Integer age;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "post_id")
     private Post post;
 

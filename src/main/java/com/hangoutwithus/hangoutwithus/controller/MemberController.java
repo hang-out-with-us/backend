@@ -7,6 +7,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @Api
 @RequestMapping("/member")
@@ -29,9 +31,9 @@ public class MemberController {
         return memberService.update(id, memberRequest);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/")
     @ApiOperation("회원 탈퇴")
-    public void delete(@PathVariable Long id) {
-        memberService.delete(id);
+    public void delete(Principal principal) {
+        memberService.delete(principal);
     }
 }

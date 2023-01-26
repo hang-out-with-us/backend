@@ -47,13 +47,16 @@ public class MemberService implements UserDetailsService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    public MemberResponse create(MemberRequest memberRequest) {
+    public MemberResponse signup(MemberRequest memberRequest) {
+
         Member member = Member.builder()
                 .name(memberRequest.getName())
                 .email(memberRequest.getEmail())
-                .password(memberRequest.getPassword())
+                .password(passwordEncoder.encode(memberRequest.getPassword()))
                 .age(memberRequest.getAge())
+                .role(memberRequest.getRole())
                 .build();
+
         return new MemberResponse(memberRepository.save(member));
     }
 

@@ -34,6 +34,9 @@ public class Member extends BaseEntity {
     @JoinColumn(name = "post_id")
     private Post post;
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     public void addPost(Post post) {
         this.post = post;
     }

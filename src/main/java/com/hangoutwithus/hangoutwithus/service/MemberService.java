@@ -82,11 +82,11 @@ public class MemberService implements UserDetailsService {
         return new MemberResponse(member);
     }
 
-    public MemberResponse update(Long id, MemberRequest memberRequest) {
-        Member member = memberRepository.findById(id).orElseThrow();
+    public MemberResponse update(Principal principal, MemberRequest memberRequest) {
+        Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
         String name = memberRequest.getName() == null ? member.getName() : memberRequest.getName();
         String email = memberRequest.getEmail() == null ? member.getEmail() : memberRequest.getEmail();
-        String password = memberRequest.getPassword() == null ? member.getPassword() : memberRequest.getPassword();
+        String password = memberRequest.getPassword() == null ? member.getPassword() : passwordEncoder.encode(memberRequest.getPassword());
         Integer age = memberRequest.getAge() == null ? member.getAge() : memberRequest.getAge();
         member.update(name, email, password, age);
 

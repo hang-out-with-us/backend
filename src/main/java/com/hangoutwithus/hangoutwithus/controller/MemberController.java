@@ -26,9 +26,9 @@ public class MemberController {
         return memberService.findOne(id);
     }
 
-    @PutMapping("/{id}")
-    public MemberResponse update(@PathVariable Long id, @RequestBody MemberRequest memberRequest) {
-        return memberService.update(id, memberRequest);
+    @PutMapping("/")
+    public MemberResponse update(Principal principal, @RequestBody MemberRequest memberRequest) {
+        return memberService.update(principal, memberRequest);
     }
 
     @DeleteMapping("/")

@@ -4,12 +4,19 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
     username: ${DB_USER}
     password: ${DB_PASSWORD}
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: create
+
 server:
   port: ${SERVER_PORT}
+
+jwt:
+  secret: ${JWT_SECRET}
+  token_validity_in_seconds: 38400

@@ -31,10 +31,10 @@ public class PostController {
         return postService.findById(postId);
     }
 
-    @PutMapping("/{postId}")
+    @PutMapping("/")
     @ApiOperation(value = "글 수정")
-    public PostResponse update(@PathVariable Long postId, @RequestBody PostRequest postRequest) {
-        return postService.update(postId, postRequest);
+    public PostResponse update(Principal principal, @RequestBody PostRequest postRequest) {
+        return postService.update(principal, postRequest);
     }
 
     @DeleteMapping("/{postId}")

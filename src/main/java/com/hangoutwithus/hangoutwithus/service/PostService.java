@@ -37,7 +37,9 @@ public class PostService {
         return new PostResponse(post);
     }
 
-    public PostResponse update(Long postId, PostRequest postRequest) {
+    public PostResponse update(Principal principal, PostRequest postRequest) {
+
+        Long postId = memberRepository.findMemberByEmail(principal.getName()).orElseThrow().getPost().getId();
         Post post = postRepository.findById(postId).orElseThrow();
 
         String image = postRequest.getImage() == null ? post.getImage() : postRequest.getImage();

@@ -37,9 +37,9 @@ public class PostController {
         return postService.update(principal, postRequest);
     }
 
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/")
     @ApiOperation(value = "글 삭제")
-    public void delete(@PathVariable Long postId) {
-        postService.delete(postId);
+    public void delete(Principal principal) {
+        postService.delete(principal);
     }
 }

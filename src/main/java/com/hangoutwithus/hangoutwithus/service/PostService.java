@@ -53,8 +53,9 @@ public class PostService {
         return new PostResponse(post);
     }
 
-    public void delete(Long postId) {
-        memberRepository.deleteById(postId);
+    public void delete(Principal principal) {
+        Long postId = memberRepository.findMemberByEmail(principal.getName()).orElseThrow().getPost().getId();
+        postRepository.deleteById(postId);
     }
 
     public PostResponse findById(Long postId) {

@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @Api
@@ -35,5 +36,17 @@ public class MemberController {
     @ApiOperation("회원 탈퇴")
     public void delete(Principal principal) {
         memberService.delete(principal);
+    }
+
+    @PostMapping("/like/{id}")
+    @ApiOperation("좋아요")
+    public void like(Principal principal, @PathVariable Long id) {
+        memberService.like(principal, id);
+    }
+
+    @GetMapping("/like/list-who-like-me")
+    @ApiOperation("나를 좋아요 하는 사람들")
+    public List<MemberResponse> listWhoLikeMe(Principal principal) {
+        return memberService.listWhoLikeMe(principal);
     }
 }

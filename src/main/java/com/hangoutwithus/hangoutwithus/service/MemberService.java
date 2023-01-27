@@ -5,8 +5,10 @@ import com.hangoutwithus.hangoutwithus.dto.MemberRequest;
 import com.hangoutwithus.hangoutwithus.dto.MemberResponse;
 import com.hangoutwithus.hangoutwithus.dto.TokenDto;
 import com.hangoutwithus.hangoutwithus.entity.Member;
+import com.hangoutwithus.hangoutwithus.entity.MemberLike;
 import com.hangoutwithus.hangoutwithus.jwt.JwtFilter;
 import com.hangoutwithus.hangoutwithus.jwt.JwtTokenProvider;
+import com.hangoutwithus.hangoutwithus.repository.MemberLikeRepository;
 import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,12 +41,16 @@ import java.util.Collections;
 public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
+    private final MemberLikeRepository memberLikeRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, JwtTokenProvider jwtTokenProvider) {
+
+    //CRUD
+    public MemberService(MemberRepository memberRepository, MemberLikeRepository memberLikeRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, JwtTokenProvider jwtTokenProvider) {
         this.memberRepository = memberRepository;
+        this.memberLikeRepository = memberLikeRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.jwtTokenProvider = jwtTokenProvider;
@@ -95,6 +103,24 @@ public class MemberService implements UserDetailsService {
 
     public void delete(Principal principal) {
         memberRepository.deleteMemberByEmail(principal.getName());
+    }
+
+    //Like
+    public void like(Principal principal, Long id) {
+        Member me = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
+        Member target = memberRepository.findById(id).orElseThrow();
+        MemberLike memberLike = MemberLike.builder()
+                .likeTo(target)
+                .likeFrom(me)
+                .build();
+        memberLikeRepository.save(memberLike);
+    }
+
+    public List<MemberResponse> listWhoLikeMe(Principal principal) {
+        Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
+        List<MemberLike> memberLikes = memberLikeRepository.findMemberLikesByLikeTo(member);
+        List<Member> membersWhoLikeMe = memberLikes.stream().map(MemberLike::getLikeFrom).collect(Collectors.toList());
+        return membersWhoLikeMe.stream().map(MemberResponse::new).collect(Collectors.toList());
     }
 
     @Override

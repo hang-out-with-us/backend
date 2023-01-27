@@ -7,9 +7,9 @@ import javax.persistence.*;
 
 @Entity
 @Getter
-public class ChatRoomInfo{
+public class ChatRoomInfo {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne

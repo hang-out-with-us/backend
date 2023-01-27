@@ -6,10 +6,10 @@ import javax.persistence.*;
 
 @Entity
 @Getter
-public class Message extends BaseEntityCreatedOnly{
+public class Message extends BaseEntityCreatedOnly {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String content;

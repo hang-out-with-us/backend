@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Builder
 public class Member extends BaseEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Long id;
 

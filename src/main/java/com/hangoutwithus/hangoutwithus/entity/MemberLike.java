@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Getter
 public class MemberLike {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

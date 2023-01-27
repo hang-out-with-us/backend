@@ -7,6 +7,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @Api
 @RequestMapping("/post")
@@ -17,10 +19,10 @@ public class PostController {
         this.postService = postService;
     }
 
-    @PostMapping("/{memberId}")
+    @PostMapping("/")
     @ApiOperation(value = "글 작성")
-    public PostResponse post(@PathVariable Long memberId, @RequestBody PostRequest postRequest) {
-        return postService.post(memberId, postRequest);
+    public PostResponse post(Principal principal, @RequestBody PostRequest postRequest) {
+        return postService.post(principal, postRequest);
     }
 
     @GetMapping("/{postId}")

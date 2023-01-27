@@ -9,6 +9,8 @@ import com.hangoutwithus.hangoutwithus.repository.PostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
+
 @Service
 @Transactional
 public class PostService {
@@ -21,7 +23,7 @@ public class PostService {
         this.memberRepository = memberRepository;
     }
 
-    public PostResponse post(Long memberId, PostRequest postRequest) {
+    public PostResponse post(Principal principal, PostRequest postRequest) {
         Post post = Post.builder()
                 .image(postRequest.getImage())
                 .content(postRequest.getContent())
@@ -29,7 +31,7 @@ public class PostService {
                 .locationY(postRequest.getLocationY())
                 .areaName(postRequest.getAreaName())
                 .build();
-        Member member = memberRepository.findById(memberId).orElseThrow();
+        Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
         member.addPost(post);
         post = postRepository.save(post);
         return new PostResponse(post);

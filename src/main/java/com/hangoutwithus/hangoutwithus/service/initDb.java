@@ -41,7 +41,7 @@ public class initDb {
         }
 
         public void dbInit1() {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 300; i++) {
                 Member member = Member.builder()
                         .name("Name" + i)
                         .password(passwordEncoder.encode("123123"))

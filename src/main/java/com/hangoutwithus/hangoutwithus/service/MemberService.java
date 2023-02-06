@@ -12,6 +12,8 @@ import com.hangoutwithus.hangoutwithus.repository.MemberLikeRepository;
 import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -121,6 +123,12 @@ public class MemberService implements UserDetailsService {
         List<MemberLike> memberLikes = memberLikeRepository.findMemberLikesByLikeTo(member);
         List<Member> membersWhoLikeMe = memberLikes.stream().map(MemberLike::getLikeFrom).collect(Collectors.toList());
         return membersWhoLikeMe.stream().map(MemberResponse::new).collect(Collectors.toList());
+    }
+
+    public Slice<MemberResponse> recommend(Principal principal, Pageable pageable) {
+        Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
+        Slice<Member> memberPage = memberRepository.findByDistance(member.getPost().getLocationX(), member.getPost().getLocationY(), pageable);
+        return memberPage.map(MemberResponse::new);
     }
 
     @Override

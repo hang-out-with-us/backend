@@ -5,6 +5,8 @@ import com.hangoutwithus.hangoutwithus.dto.MemberResponse;
 import com.hangoutwithus.hangoutwithus.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -31,6 +33,13 @@ public class MemberController {
     public MemberResponse update(Principal principal, @RequestBody MemberRequest memberRequest) {
         return memberService.update(principal, memberRequest);
     }
+
+    @GetMapping("/recommend")
+    @ApiOperation("회원 추천")
+    public Slice<MemberResponse> recommend(Principal principal, Pageable pageable) {
+        return memberService.recommend(principal, pageable);
+    }
+
 
     @DeleteMapping("/")
     @ApiOperation("회원 탈퇴")

@@ -35,7 +35,10 @@ public class MemberController {
     }
 
     @GetMapping("/recommend")
-    @ApiOperation("회원 추천")
+    @ApiOperation(value = "회원 추천", notes = "밑에 있는 parameter들 잘못 나온 거고 page, size 만 설정하면 됨." +
+            "<br>page는 몇 번째 페이지인지, size는 페이지당 몇 개의 데이터 가져올지" +
+            "<br>ex)http://{path}/member/recommend?page=0&size=15")
+
     public Slice<MemberResponse> recommend(Principal principal, Pageable pageable) {
         return memberService.recommend(principal, pageable);
     }

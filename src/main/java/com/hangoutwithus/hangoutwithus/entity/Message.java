@@ -18,5 +18,5 @@ public class Message extends BaseEntityCreatedOnly {
     private ChatRoom chatRoom;
 
     @OneToOne
-    private Message messageFrom;
+    private Member sender;
 }

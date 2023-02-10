@@ -110,6 +110,11 @@ public class MemberService implements UserDetailsService {
     //Like
     public void like(Principal principal, Long id) {
         Member me = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
+
+        //나 자신 좋아요 안 됨
+        if (me.getId() == id) {
+            return;
+        }
         Member target = memberRepository.findById(id).orElseThrow();
         MemberLike memberLike = MemberLike.builder()
                 .likeTo(target)

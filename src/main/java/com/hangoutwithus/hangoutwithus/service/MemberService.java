@@ -1,17 +1,16 @@
 package com.hangoutwithus.hangoutwithus.service;
 
-import com.hangoutwithus.hangoutwithus.dto.LoginDto;
-import com.hangoutwithus.hangoutwithus.dto.MemberRequest;
-import com.hangoutwithus.hangoutwithus.dto.MemberResponse;
-import com.hangoutwithus.hangoutwithus.dto.TokenDto;
+import com.hangoutwithus.hangoutwithus.dto.*;
 import com.hangoutwithus.hangoutwithus.entity.Member;
 import com.hangoutwithus.hangoutwithus.entity.MemberLike;
+import com.hangoutwithus.hangoutwithus.entity.Post;
 import com.hangoutwithus.hangoutwithus.jwt.JwtFilter;
 import com.hangoutwithus.hangoutwithus.jwt.JwtTokenProvider;
 import com.hangoutwithus.hangoutwithus.repository.MemberLikeRepository;
 import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpHeaders;
@@ -47,6 +46,9 @@ public class MemberService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
+
+    @Value("${file.path}")
+    String path;
 
 
     //CRUD
@@ -130,10 +132,16 @@ public class MemberService implements UserDetailsService {
         return membersWhoLikeMe.stream().map(MemberResponse::new).collect(Collectors.toList());
     }
 
-    public Slice<MemberResponse> recommend(Principal principal, Pageable pageable) {
+    public Slice<MemberRecommendResponse> recommend(Principal principal, Pageable pageable) {
         Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
-        Slice<Member> memberPage = memberRepository.findByDistance(member.getPost().getLocationX(), member.getPost().getLocationY(), pageable);
-        return memberPage.map(MemberResponse::new);
+        Post post = member.getPost();
+
+
+        Slice<Member> memberPage = memberRepository.findByDistance(post.getLocationX(), post.getLocationY(), pageable);
+
+        return memberPage.map(m -> {
+            return new MemberRecommendResponse(m, new PostResponse(m.getPost()));
+        });
     }
 
     @Override

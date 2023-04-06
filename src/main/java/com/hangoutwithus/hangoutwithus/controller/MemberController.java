@@ -1,5 +1,6 @@
 package com.hangoutwithus.hangoutwithus.controller;
 
+import com.hangoutwithus.hangoutwithus.dto.MemberRecommendResponse;
 import com.hangoutwithus.hangoutwithus.dto.MemberRequest;
 import com.hangoutwithus.hangoutwithus.dto.MemberResponse;
 import com.hangoutwithus.hangoutwithus.service.MemberService;
@@ -39,7 +40,7 @@ public class MemberController {
             "<br>page는 몇 번째 페이지인지, size는 페이지당 몇 개의 데이터 가져올지" +
             "<br>ex)http://{path}/member/recommend?page=0&size=15")
 
-    public Slice<MemberResponse> recommend(Principal principal, Pageable pageable) {
+    public Slice<MemberRecommendResponse> recommend(Principal principal, Pageable pageable) {
         return memberService.recommend(principal, pageable);
     }
 

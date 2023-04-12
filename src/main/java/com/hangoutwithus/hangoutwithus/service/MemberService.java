@@ -113,6 +113,9 @@ public class MemberService implements UserDetailsService {
     public void like(Principal principal, Long id) {
         Member me = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
         Member target = memberRepository.findById(id).orElseThrow();
+        if (me.equals(target)) {
+            throw new IllegalArgumentException("자기 자신을 좋아요 할 수 없습니다.");
+        }
         MemberLike memberLike = MemberLike.builder()
                 .likeTo(target)
                 .likeFrom(me)

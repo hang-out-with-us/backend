@@ -47,15 +47,17 @@ public class MemberService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final ChatService chatService;
 
 
     //CRUD
-    public MemberService(MemberRepository memberRepository, MemberLikeRepository memberLikeRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, JwtTokenProvider jwtTokenProvider) {
+    public MemberService(MemberRepository memberRepository, MemberLikeRepository memberLikeRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, JwtTokenProvider jwtTokenProvider, ChatService chatService) {
         this.memberRepository = memberRepository;
         this.memberLikeRepository = memberLikeRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.chatService = chatService;
     }
 
     public MemberResponse signup(MemberRequest memberRequest) {
@@ -116,6 +118,11 @@ public class MemberService implements UserDetailsService {
                 .likeFrom(me)
                 .build();
         memberLikeRepository.save(memberLike);
+
+        //상대방도 나를 좋아요 눌렀으면 자동으로 채팅방 생성
+        if(memberLikeRepository.findMemberLikesByLikeTo(me).stream().anyMatch(memberLike1 -> memberLike1.getLikeFrom().equals(target))){
+            chatService.createRoom(me, target);
+        }
     }
 
     public List<MemberResponse> listWhoLikeMe(Principal principal) {

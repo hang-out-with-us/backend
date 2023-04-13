@@ -16,7 +16,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
+        default_batch_fetch_size: 100
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 logging:
   level:
     org:
@@ -27,3 +31,6 @@ logging:
 jwt:
   secret: aGFuZy1vdXQtd2l0aC1tZS1sb2NhbC1qd3Qtc2VjcmV0Cg==
   token_validity_in_seconds: 38400
+
+file:
+  path: /Users/gwonbj/Desktop/test/

@@ -1,17 +1,16 @@
 package com.hangoutwithus.hangoutwithus.service;
 
-import com.hangoutwithus.hangoutwithus.dto.LoginDto;
-import com.hangoutwithus.hangoutwithus.dto.MemberRequest;
-import com.hangoutwithus.hangoutwithus.dto.MemberResponse;
-import com.hangoutwithus.hangoutwithus.dto.TokenDto;
+import com.hangoutwithus.hangoutwithus.dto.*;
 import com.hangoutwithus.hangoutwithus.entity.Member;
 import com.hangoutwithus.hangoutwithus.entity.MemberLike;
+import com.hangoutwithus.hangoutwithus.entity.Post;
 import com.hangoutwithus.hangoutwithus.jwt.JwtFilter;
 import com.hangoutwithus.hangoutwithus.jwt.JwtTokenProvider;
 import com.hangoutwithus.hangoutwithus.repository.MemberLikeRepository;
 import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpHeaders;
@@ -48,6 +47,9 @@ public class MemberService implements UserDetailsService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ChatService chatService;
+
+    @Value("${file.path}")
+    String path;
 
 
     //CRUD
@@ -112,6 +114,11 @@ public class MemberService implements UserDetailsService {
     //Like
     public void like(Principal principal, Long id) {
         Member me = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
+
+        //나 자신 좋아요 안 됨
+        if (me.getId() == id) {
+            return;
+        }
         Member target = memberRepository.findById(id).orElseThrow();
         if (me.equals(target)) {
             throw new IllegalArgumentException("자기 자신을 좋아요 할 수 없습니다.");
@@ -135,10 +142,16 @@ public class MemberService implements UserDetailsService {
         return membersWhoLikeMe.stream().map(MemberResponse::new).collect(Collectors.toList());
     }
 
-    public Slice<MemberResponse> recommend(Principal principal, Pageable pageable) {
+    public Slice<MemberRecommendResponse> recommend(Principal principal, Pageable pageable) {
         Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
-        Slice<Member> memberPage = memberRepository.findByDistance(member.getPost().getLocationX(), member.getPost().getLocationY(), pageable);
-        return memberPage.map(MemberResponse::new);
+        Post post = member.getPost();
+
+
+        Slice<Member> memberPage = memberRepository.findByDistance(post.getLocationX(), post.getLocationY(), pageable);
+
+        return memberPage.map(m -> {
+            return new MemberRecommendResponse(m, new PostResponse(m.getPost()));
+        });
     }
 
     @Override

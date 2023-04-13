@@ -14,9 +14,18 @@ spring:
     hibernate:
       ddl-auto: create
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 server:
   port: ${SERVER_PORT}
 
 jwt:
   secret: ${JWT_SECRET}
   token_validity_in_seconds: 38400
+
+
+file:
+  path: ${FILE_PATH}

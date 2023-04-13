@@ -2,14 +2,23 @@ package com.hangoutwithus.hangoutwithus.service;
 
 import com.hangoutwithus.hangoutwithus.dto.PostRequest;
 import com.hangoutwithus.hangoutwithus.dto.PostResponse;
+import com.hangoutwithus.hangoutwithus.entity.Image;
 import com.hangoutwithus.hangoutwithus.entity.Member;
 import com.hangoutwithus.hangoutwithus.entity.Post;
+import com.hangoutwithus.hangoutwithus.repository.ImageRepository;
 import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
 import com.hangoutwithus.hangoutwithus.repository.PostRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -17,41 +26,41 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final ImageRepository imageRepository;
 
-    public PostService(PostRepository postRepository, MemberRepository memberRepository) {
+    @Value("${file.path}")
+    String path;
+
+    public PostService(PostRepository postRepository, MemberRepository memberRepository, ImageRepository imageRepository) {
         this.postRepository = postRepository;
         this.memberRepository = memberRepository;
+        this.imageRepository = imageRepository;
     }
 
+    @Transactional
     public PostResponse post(Principal principal, PostRequest postRequest) {
+        if(memberRepository.findMemberByEmail(principal.getName()).orElseThrow().getPost() != null) {
+            throw new IllegalStateException("이미 작성한 글이 있습니다.");
+        }
         Post post = Post.builder()
-                .image(postRequest.getImage())
                 .content(postRequest.getContent())
                 .locationX(postRequest.getLocationX())
                 .locationY(postRequest.getLocationY())
                 .areaName(postRequest.getAreaName())
                 .build();
         Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
+        List<Image> images = new ArrayList<>();
         member.addPost(post);
-        post = postRepository.save(post);
-        return new PostResponse(post);
+
+        PostResponse postResponse = new PostResponse(post);
+        for (MultipartFile file : postRequest.getImages()) {
+            Image image = uploadImage(file, principal, post);
+            postResponse.addFilename(image.getName());
+        }
+
+        return postResponse;
     }
 
-    public PostResponse update(Principal principal, PostRequest postRequest) {
-
-        Long postId = memberRepository.findMemberByEmail(principal.getName()).orElseThrow().getPost().getId();
-        Post post = postRepository.findById(postId).orElseThrow();
-
-        String image = postRequest.getImage() == null ? post.getImage() : postRequest.getImage();
-        String content = postRequest.getContent() == null ? post.getContent() : postRequest.getContent();
-        Integer locationX = postRequest.getLocationX() == null ? post.getLocationX() : postRequest.getLocationX();
-        Integer locationY = postRequest.getLocationY() == null ? post.getLocationY() : postRequest.getLocationY();
-        String areaName = postRequest.getAreaName() == null ? post.getAreaName() : postRequest.getAreaName();
-
-        post.updatePost(image, content, locationX, locationY, areaName);
-
-        return new PostResponse(post);
-    }
 
     public void delete(Principal principal) {
         Long postId = memberRepository.findMemberByEmail(principal.getName()).orElseThrow().getPost().getId();
@@ -60,5 +69,23 @@ public class PostService {
 
     public PostResponse findById(Long postId) {
         return new PostResponse(postRepository.findById(postId).orElseThrow());
+    }
+
+    public Image uploadImage(MultipartFile file, Principal principal, Post post) {
+        int pos = file.getOriginalFilename().lastIndexOf(".");
+        String ext = file.getOriginalFilename().substring(pos);
+        String fileName = principal.getName() + UUID.randomUUID() + ext;
+        path += fileName;
+
+        Image image = Image.builder()
+                .name(fileName)
+                .member(memberRepository.findMemberByEmail(principal.getName()).orElseThrow())
+                .post(post)
+                .build();
+        try {
+            Files.write(Path.of(path), file.getBytes());
+        } catch (Exception e) {
+        }
+        return imageRepository.save(image);
     }
 }

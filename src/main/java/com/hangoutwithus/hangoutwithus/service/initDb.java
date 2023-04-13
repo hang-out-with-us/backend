@@ -1,8 +1,10 @@
 package com.hangoutwithus.hangoutwithus.service;
 
+import com.hangoutwithus.hangoutwithus.entity.Image;
 import com.hangoutwithus.hangoutwithus.entity.Member;
 import com.hangoutwithus.hangoutwithus.entity.Post;
 import com.hangoutwithus.hangoutwithus.entity.Role;
+import com.hangoutwithus.hangoutwithus.repository.ImageRepository;
 import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
 import com.hangoutwithus.hangoutwithus.repository.PostRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,14 +36,17 @@ public class initDb {
         private final PasswordEncoder passwordEncoder;
         private final PostRepository postRepository;
 
-        InitService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, PostRepository postRepository) {
+        private final ImageRepository imageRepository;
+
+        InitService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, PostRepository postRepository, ImageRepository imageRepository) {
             this.memberRepository = memberRepository;
             this.passwordEncoder = passwordEncoder;
             this.postRepository = postRepository;
+            this.imageRepository = imageRepository;
         }
 
         public void dbInit1() {
-            for (int i = 0; i < 300; i++) {
+            for (int i = 0; i < 50; i++) {
                 Member member = Member.builder()
                         .name("Name" + i)
                         .password(passwordEncoder.encode("123123"))
@@ -57,6 +62,15 @@ public class initDb {
                         .locationY((int) (Math.random() * 100))
                         .build();
                 postRepository.save(post);
+                for (int j = 0; j < 3; j++) {
+                    Image image = Image.builder()
+                            .name(i+"-"+j + ".jpg")
+                            .post(post)
+                            .member(member)
+                            .build();
+                    imageRepository.save(image);
+                }
+
             }
         }
     }

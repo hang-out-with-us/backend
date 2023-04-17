@@ -27,4 +27,8 @@ public class ChatController {
         return chatService.getRooms(principal);
     }
 
+    @MessageMapping("/message")
+    public void message(@Payload MessageDto messageDto,Principal principal){
+        chatService.send(messageDto, principal);
+    }
 }

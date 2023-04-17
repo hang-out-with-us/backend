@@ -1,12 +1,7 @@
 package com.hangoutwithus.hangoutwithus.service;
 
-import com.hangoutwithus.hangoutwithus.entity.Image;
-import com.hangoutwithus.hangoutwithus.entity.Member;
-import com.hangoutwithus.hangoutwithus.entity.Post;
-import com.hangoutwithus.hangoutwithus.entity.Role;
-import com.hangoutwithus.hangoutwithus.repository.ImageRepository;
-import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
-import com.hangoutwithus.hangoutwithus.repository.PostRepository;
+import com.hangoutwithus.hangoutwithus.entity.*;
+import com.hangoutwithus.hangoutwithus.repository.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,13 +30,17 @@ public class initDb {
         private final MemberRepository memberRepository;
         private final PasswordEncoder passwordEncoder;
         private final PostRepository postRepository;
+        private final ChatRoomRepository chatRoomRepository;
+        private final ChatRoomInfoRepository chatRoomInfoRepository;
 
         private final ImageRepository imageRepository;
 
-        InitService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, PostRepository postRepository, ImageRepository imageRepository) {
+        InitService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, PostRepository postRepository, ChatRoomRepository chatRoomRepository, ChatRoomInfoRepository chatRoomInfoRepository, ImageRepository imageRepository) {
             this.memberRepository = memberRepository;
             this.passwordEncoder = passwordEncoder;
             this.postRepository = postRepository;
+            this.chatRoomRepository = chatRoomRepository;
+            this.chatRoomInfoRepository = chatRoomInfoRepository;
             this.imageRepository = imageRepository;
         }
 
@@ -70,8 +69,20 @@ public class initDb {
                             .build();
                     imageRepository.save(image);
                 }
-
             }
+            ChatRoom chatRoom = new ChatRoom();
+            chatRoomRepository.save(chatRoom);
+            ChatRoomInfo chatRoomInfo1 = ChatRoomInfo.builder()
+                    .chatRoom(chatRoom)
+                    .member(memberRepository.findById(1L).orElseThrow())
+                    .build();
+            ChatRoomInfo chatRoomInfo2 = ChatRoomInfo.builder()
+                            .chatRoom(chatRoom)
+                    .member(memberRepository.findById(2L).orElseThrow())
+                    .build();
+
+            chatRoomInfoRepository.save(chatRoomInfo1);
+            chatRoomInfoRepository.save(chatRoomInfo2);
         }
     }
 }

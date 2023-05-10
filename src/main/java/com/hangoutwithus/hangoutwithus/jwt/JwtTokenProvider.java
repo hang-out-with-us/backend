@@ -26,6 +26,7 @@ public class JwtTokenProvider {
     private static final String AUTHORITIES_KEY = "auth";
     private final String secret;
     private final long tokenValidityInMilliseconds;
+    private final long refreshTokenValidityInMilliseconds;
 
     private Key key;
 
@@ -34,6 +35,7 @@ public class JwtTokenProvider {
             @Value("${jwt.token_validity_in_seconds}") long tokenValidityInSeconds) {
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.refreshTokenValidityInMilliseconds = 1000 * 60 * 60 * 24 * 7;
     }
 
     //빈이 생성 되고 주입을 받은 후에 secret값을 Base64 Decode해서 key변수에 할당
@@ -61,6 +63,22 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String createRefreshToken(Authentication authentication) {
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        //토큰 유효기간 설정
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + this.refreshTokenValidityInMilliseconds);
+
+        return Jwts.builder()
+                .setSubject(authentication.getName())   //payload "sub": "name"
+                .claim(AUTHORITIES_KEY, authorities)    //payload "auth": "ROLE_USER"
+                .setExpiration(validity)                //payload "exp": "38400"
+                .signWith(key, SignatureAlgorithm.HS256)//header "alg": "HS256"
+                .compact();
+    }
     //token -> Authentication
     public Authentication getAuthentication(String token) {
 
@@ -84,20 +102,37 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
+    //유효기간 임박 여부
+    public boolean isExpirationApproaching(String token) {
+        Claims claims = Jwts
+                .parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        //2일 남았으면 true 반환
+        return claims.getExpiration().getTime() - System.currentTimeMillis() < 1000 * 60 * 60 * 24 * 2;
+    }
+
+
     //토큰 유효성 검증
-    public boolean validateToken(String token) {
+    public TokenValidState validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
+            return TokenValidState.VALIDATED;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.info("잘못된 JWT 서명입니다.");
+            return TokenValidState.INVALID;
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.");
+            return TokenValidState.EXPIRED;
         } catch (UnsupportedJwtException e) {
             log.info("지원되지 않는 JWT 토큰입니다.");
+            return TokenValidState.INVALID;
         } catch (IllegalArgumentException e) {
             log.info("JWT 토큰이 잘못되었습니다.");
+            return TokenValidState.INVALID;
         }
-        return false;
     }
 }

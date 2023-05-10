@@ -8,10 +8,7 @@ import com.hangoutwithus.hangoutwithus.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -36,5 +33,11 @@ public class AuthController {
     @ApiOperation(value = "회원가입")
     public MemberResponse signup(@RequestBody MemberRequest memberRequest) {
         return memberService.signup(memberRequest);
+    }
+
+    @GetMapping("/refresh")
+    @ApiOperation(value = "토큰 재발급")
+    public ResponseEntity<TokenDto> refresh(@RequestHeader("X-Refresh-Token") String refreshToken) {
+        return memberService.refresh(refreshToken);
     }
 }

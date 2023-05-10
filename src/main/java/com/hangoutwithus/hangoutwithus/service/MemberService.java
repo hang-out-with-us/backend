@@ -4,10 +4,13 @@ import com.hangoutwithus.hangoutwithus.dto.*;
 import com.hangoutwithus.hangoutwithus.entity.Member;
 import com.hangoutwithus.hangoutwithus.entity.MemberLike;
 import com.hangoutwithus.hangoutwithus.entity.Post;
+import com.hangoutwithus.hangoutwithus.entity.RefreshToken;
 import com.hangoutwithus.hangoutwithus.jwt.JwtFilter;
 import com.hangoutwithus.hangoutwithus.jwt.JwtTokenProvider;
+import com.hangoutwithus.hangoutwithus.jwt.TokenValidState;
 import com.hangoutwithus.hangoutwithus.repository.MemberLikeRepository;
 import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
+import com.hangoutwithus.hangoutwithus.repository.RefreshTokenRepository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -47,19 +51,21 @@ public class MemberService implements UserDetailsService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ChatService chatService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Value("${file.path}")
     String path;
 
 
     //CRUD
-    public MemberService(MemberRepository memberRepository, MemberLikeRepository memberLikeRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, JwtTokenProvider jwtTokenProvider, ChatService chatService) {
+    public MemberService(MemberRepository memberRepository, MemberLikeRepository memberLikeRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, JwtTokenProvider jwtTokenProvider, ChatService chatService, RefreshTokenRepository refreshTokenRepository) {
         this.memberRepository = memberRepository;
         this.memberLikeRepository = memberLikeRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.chatService = chatService;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     public MemberResponse signup(MemberRequest memberRequest) {
@@ -84,10 +90,19 @@ public class MemberService implements UserDetailsService {
 
         String jwt = jwtTokenProvider.createToken(authentication);
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByEmail(loginDto.getEmail());
+        String refreshJwt = jwtTokenProvider.createRefreshToken(authentication);
 
-        return new ResponseEntity<>(new TokenDto(jwt), httpHeaders, HttpStatus.OK);
+        if(refreshToken.isPresent()) {
+            refreshTokenRepository.save(refreshToken.get().updateToken(jwt));
+        } else {
+            refreshTokenRepository.save(RefreshToken.builder()
+                    .email(loginDto.getEmail())
+                    .refreshToken(refreshJwt)
+                    .build());
+        }
+
+        return new ResponseEntity<>(new TokenDto(jwt,refreshJwt), HttpStatus.OK);
     }
 
     @Transactional(readOnly = true)
@@ -141,7 +156,6 @@ public class MemberService implements UserDetailsService {
         List<Member> membersWhoLikeMe = memberLikes.stream().map(MemberLike::getLikeFrom).collect(Collectors.toList());
         return membersWhoLikeMe.stream().map(MemberResponse::new).collect(Collectors.toList());
     }
-
     public Slice<MemberRecommendResponse> recommend(Principal principal, Pageable pageable) {
         Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
         Post post = member.getPost();
@@ -152,6 +166,23 @@ public class MemberService implements UserDetailsService {
         return memberPage.map(m -> {
             return new MemberRecommendResponse(m, new PostResponse(m.getPost()));
         });
+    }
+
+    //토큰 재발급
+    public ResponseEntity<TokenDto> refresh(String refreshToken) {
+        if(jwtTokenProvider.validateToken(refreshToken) != TokenValidState.VALIDATED) {
+            throw new RuntimeException("Refresh Token이 유효하지 않습니다.");
+        }
+
+        Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
+        String jwt = jwtTokenProvider.createToken(authentication);
+
+        if(jwtTokenProvider.isExpirationApproaching(refreshToken)) { //refreshToken 만료 2일 전
+            //refreshToken 재발급
+            refreshToken = jwtTokenProvider.createRefreshToken(authentication);
+        }
+
+        return ResponseEntity.ok(new TokenDto(jwt, refreshToken));
     }
 
     @Override

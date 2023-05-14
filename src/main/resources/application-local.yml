@@ -21,6 +21,8 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+
+
 logging:
   level:
     org:
@@ -34,3 +36,8 @@ jwt:
 
 file:
   path: /Users/gwonbj/Desktop/test/
+
+server:
+  error:
+#    include-binding-errors: always
+    include-message: always

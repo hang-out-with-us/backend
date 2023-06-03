@@ -1,8 +1,11 @@
 package com.hangoutwithus.hangoutwithus.config.security;
 
+import com.hangoutwithus.hangoutwithus.config.oauth.OAuth2FailureHandler;
+import com.hangoutwithus.hangoutwithus.config.oauth.OAuth2SuccessHandler;
 import com.hangoutwithus.hangoutwithus.jwt.JwtAccessDeniedHandler;
 import com.hangoutwithus.hangoutwithus.jwt.JwtAuthenticationEntryPoint;
 import com.hangoutwithus.hangoutwithus.jwt.JwtSecurityConfig;
+import com.hangoutwithus.hangoutwithus.service.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,21 +22,24 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true) //@PreAuthorize 어노테이션을 메소드 단위로 추가하기 위해서 적용
 public class SecurityConfig {
-    //    private final JwtTokenProvider jwtTokenProvider;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtSecurityConfig jwtSecurityConfig;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
 
     public SecurityConfig(
-//            JwtTokenProvider jwtTokenProvider,
             JwtAccessDeniedHandler jwtAccessDeniedHandler,
             JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-            JwtSecurityConfig jwtSecurityConfig
-    ) {
-//        this.jwtTokenProvider = jwtTokenProvider;
+            JwtSecurityConfig jwtSecurityConfig,
+            CustomOAuth2UserService customOAuth2UserService, OAuth2SuccessHandler oAuth2SuccessHandler, OAuth2FailureHandler oAuth2FailureHandler) {
         this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
         this.jwtSecurityConfig = jwtSecurityConfig;
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+        this.oAuth2FailureHandler = oAuth2FailureHandler;
     }
 
     @Bean
@@ -62,7 +68,22 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
 
                 .and()
-//              .apply(new JwtSecurityConfig(jwtTokenProvider));
+                .oauth2Login()
+                .authorizationEndpoint()
+                .baseUri("/auth/oauth2/authorize")
+
+                .and()
+                .redirectionEndpoint()
+                .baseUri("/auth/oauth2/code/*")
+
+                .and()
+                .userInfoEndpoint()
+                .userService(customOAuth2UserService)
+
+                .and()
+                .successHandler(oAuth2SuccessHandler)
+                .failureHandler(oAuth2FailureHandler)
+                .and()
                 .apply(jwtSecurityConfig);
         return http.build();
     }

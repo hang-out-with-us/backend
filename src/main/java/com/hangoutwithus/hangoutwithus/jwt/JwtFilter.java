@@ -59,14 +59,12 @@ public class JwtFilter extends OncePerRequestFilter {
             log.info("JWT 토큰이 만료되었습니다. uri: {}", requestURI);
             response.getWriter().write("EXPIRED_ACCESS_TOKEN");
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-
         }
         else {
             //refreshToken이 유효하지 않거나, jwt 토큰이 유효하지 않은 경우
             log.info("유효한 JWT 토큰이 없습니다. uri: {}", requestURI);
             response.getWriter().write("INVALID_TOKEN");
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-
         }
     }
 

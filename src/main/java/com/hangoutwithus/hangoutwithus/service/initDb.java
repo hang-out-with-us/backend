@@ -52,6 +52,7 @@ public class initDb {
                         .role(Role.valueOf("ROLE_USER"))
                         .age((int) (Math.random() * 10) + 20)
                         .email("email" + i + "@example.com")
+                        .isCompletedSignup(true)
                         .build();
                 memberRepository.save(member);
                 Post post = Post.builder()

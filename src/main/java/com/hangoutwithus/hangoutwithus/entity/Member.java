@@ -18,23 +18,28 @@ public class Member extends BaseEntity {
     @Column
     private Long id;
 
-    @Column(nullable = false)
+    @Column
     private String name;
 
     @Column(unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column
     private String password;
 
-    @Column(nullable = false)
+    @Column
     private Integer age;
+
+    @Column
+    private Boolean isCompletedSignup;
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private Post post;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+
 
     public void addPost(Post post) {
         this.post = post;

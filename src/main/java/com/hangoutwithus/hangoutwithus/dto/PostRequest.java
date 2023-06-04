@@ -17,16 +17,7 @@ public class PostRequest {
 
     String content;
 
-    Integer locationX;
-
-    Integer locationY;
-
-    String areaName;
-
     public PostRequest(Post post) {
         this.content = post.getContent();
-        this.locationX = post.getLocationX();
-        this.locationY = post.getLocationY();
-        this.areaName = post.getAreaName();
     }
 }

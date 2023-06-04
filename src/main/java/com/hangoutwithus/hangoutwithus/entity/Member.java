@@ -36,6 +36,9 @@ public class Member extends BaseEntity {
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private Post post;
 
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Geolocation geolocation;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -50,5 +53,6 @@ public class Member extends BaseEntity {
         this.email = email;
         this.password = password;
         this.age = age;
+        this.isCompletedSignup = true;
     }
 }

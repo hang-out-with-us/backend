@@ -22,10 +22,6 @@ public class Post extends BaseEntity {
 
     private String content;
 
-    private Integer locationX;
-
-    private Integer locationY;
-
     private String areaName;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -35,10 +31,8 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
 
-    public void updatePost(String content, Integer locationX, Integer locationY, String areaName) {
+    public void updatePost(String content, String areaName) {
         this.content = content;
-        this.locationX = locationX;
-        this.locationY = locationY;
         this.areaName = areaName;
     }
 

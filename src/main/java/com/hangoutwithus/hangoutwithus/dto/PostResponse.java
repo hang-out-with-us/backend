@@ -18,20 +18,11 @@ public class PostResponse {
 
     String content;
 
-    Integer locationX;
-
-    Integer locationY;
-
-    String areaName;
-
     List<String> filenames = new ArrayList<>();
 
     public PostResponse(Post post) {
         this.id = post.getId();
         this.content = post.getContent();
-        this.locationX = post.getLocationX();
-        this.locationY = post.getLocationY();
-        this.areaName = post.getAreaName();
         if(post.getImages() != null) {
             this.filenames.addAll(post.getImages().stream().map(Image::getName).collect(Collectors.toList()));
         }

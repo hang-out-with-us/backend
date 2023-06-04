@@ -1,8 +1,10 @@
 package com.hangoutwithus.hangoutwithus.controller;
 
+import com.hangoutwithus.hangoutwithus.dto.GeolocationDto;
 import com.hangoutwithus.hangoutwithus.dto.MemberRecommendResponse;
 import com.hangoutwithus.hangoutwithus.dto.MemberRequest;
 import com.hangoutwithus.hangoutwithus.dto.MemberResponse;
+import com.hangoutwithus.hangoutwithus.entity.Geolocation;
 import com.hangoutwithus.hangoutwithus.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -61,5 +63,12 @@ public class MemberController {
     @ApiOperation("나를 좋아요 하는 사람들")
     public List<MemberResponse> listWhoLikeMe(Principal principal) {
         return memberService.listWhoLikeMe(principal);
+    }
+
+    //Geolocation
+    @PostMapping("/geolocation")
+    @ApiOperation("위치 정보 등록")
+    public void geolocation(Principal principal, @RequestBody GeolocationDto geolocationDto) {
+        memberService.geolocation(principal, geolocationDto);
     }
 }

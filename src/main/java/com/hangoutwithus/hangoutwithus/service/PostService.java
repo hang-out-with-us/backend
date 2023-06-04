@@ -42,13 +42,11 @@ public class PostService {
         if(memberRepository.findMemberByEmail(principal.getName()).orElseThrow().getPost() != null) {
             throw new IllegalStateException("이미 작성한 글이 있습니다.");
         }
+        Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
         Post post = Post.builder()
                 .content(postRequest.getContent())
-                .locationX(postRequest.getLocationX())
-                .locationY(postRequest.getLocationY())
-                .areaName(postRequest.getAreaName())
+                .member(member)
                 .build();
-        Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
         List<Image> images = new ArrayList<>();
         member.addPost(post);
 
@@ -75,7 +73,7 @@ public class PostService {
         int pos = file.getOriginalFilename().lastIndexOf(".");
         String ext = file.getOriginalFilename().substring(pos);
         String fileName = principal.getName() + UUID.randomUUID() + ext;
-        path += fileName;
+        String filePath =  path + fileName;
 
         Image image = Image.builder()
                 .name(fileName)
@@ -83,7 +81,7 @@ public class PostService {
                 .post(post)
                 .build();
         try {
-            Files.write(Path.of(path), file.getBytes());
+            Files.write(Path.of(filePath), file.getBytes());
         } catch (Exception e) {
         }
         return imageRepository.save(image);

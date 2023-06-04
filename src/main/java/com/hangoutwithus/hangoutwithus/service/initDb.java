@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.util.Random;
 
 @Component
 public class initDb {
@@ -34,14 +35,16 @@ public class initDb {
         private final ChatRoomInfoRepository chatRoomInfoRepository;
 
         private final ImageRepository imageRepository;
+        private final GeolocationRepository geolocationRepository;
 
-        InitService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, PostRepository postRepository, ChatRoomRepository chatRoomRepository, ChatRoomInfoRepository chatRoomInfoRepository, ImageRepository imageRepository) {
+        InitService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, PostRepository postRepository, ChatRoomRepository chatRoomRepository, ChatRoomInfoRepository chatRoomInfoRepository, ImageRepository imageRepository, GeolocationRepository geolocationRepository) {
             this.memberRepository = memberRepository;
             this.passwordEncoder = passwordEncoder;
             this.postRepository = postRepository;
             this.chatRoomRepository = chatRoomRepository;
             this.chatRoomInfoRepository = chatRoomInfoRepository;
             this.imageRepository = imageRepository;
+            this.geolocationRepository = geolocationRepository;
         }
 
         public void dbInit1() {
@@ -58,10 +61,14 @@ public class initDb {
                 Post post = Post.builder()
                         .member(member)
                         .content("내용" + i)
-                        .locationX((int) (Math.random() * 100))
-                        .locationY((int) (Math.random() * 100))
                         .build();
                 postRepository.save(post);
+                Geolocation geolocation = Geolocation.builder()
+                        .latitude(randomDouble())
+                        .longitude(randomDouble())
+                        .member(member)
+                        .build();
+                geolocationRepository.save(geolocation);
                 for (int j = 0; j < 3; j++) {
                     Image image = Image.builder()
                             .name(i+"-"+j + ".jpg")
@@ -85,5 +92,14 @@ public class initDb {
             chatRoomInfoRepository.save(chatRoomInfo1);
             chatRoomInfoRepository.save(chatRoomInfo2);
         }
+    }
+    public static Double randomDouble() {
+        Random random = new Random();
+        double min = -180.0;
+        double max = 180.0;
+        int precision = 6;
+
+        double randomValue = min + (max - min) * random.nextDouble();
+        return Math.round(randomValue * Math.pow(10, precision)) / Math.pow(10, precision);
     }
 }

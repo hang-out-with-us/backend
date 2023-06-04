@@ -1,12 +1,10 @@
 package com.hangoutwithus.hangoutwithus.service;
 
 import com.hangoutwithus.hangoutwithus.dto.*;
-import com.hangoutwithus.hangoutwithus.entity.Member;
-import com.hangoutwithus.hangoutwithus.entity.MemberLike;
-import com.hangoutwithus.hangoutwithus.entity.Post;
-import com.hangoutwithus.hangoutwithus.entity.RefreshToken;
+import com.hangoutwithus.hangoutwithus.entity.*;
 import com.hangoutwithus.hangoutwithus.jwt.JwtTokenProvider;
 import com.hangoutwithus.hangoutwithus.jwt.TokenValidState;
+import com.hangoutwithus.hangoutwithus.repository.GeolocationRepository;
 import com.hangoutwithus.hangoutwithus.repository.MemberLikeRepository;
 import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
 import com.hangoutwithus.hangoutwithus.repository.RefreshTokenRepository;
@@ -30,10 +28,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -50,13 +50,14 @@ public class MemberService implements UserDetailsService {
     private final JwtTokenProvider jwtTokenProvider;
     private final ChatService chatService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final GeolocationRepository geolocationRepository;
 
     @Value("${file.path}")
     String path;
 
 
     //CRUD
-    public MemberService(MemberRepository memberRepository, MemberLikeRepository memberLikeRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, JwtTokenProvider jwtTokenProvider, ChatService chatService, RefreshTokenRepository refreshTokenRepository) {
+    public MemberService(MemberRepository memberRepository, MemberLikeRepository memberLikeRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, JwtTokenProvider jwtTokenProvider, ChatService chatService, RefreshTokenRepository refreshTokenRepository, GeolocationRepository geolocationRepository) {
         this.memberRepository = memberRepository;
         this.memberLikeRepository = memberLikeRepository;
         this.passwordEncoder = passwordEncoder;
@@ -64,6 +65,7 @@ public class MemberService implements UserDetailsService {
         this.jwtTokenProvider = jwtTokenProvider;
         this.chatService = chatService;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.geolocationRepository = geolocationRepository;
     }
 
     public MemberResponse signup(MemberRequest memberRequest) {
@@ -158,8 +160,18 @@ public class MemberService implements UserDetailsService {
         Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
         Post post = member.getPost();
 
+        if(post == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "POST_NOT_EXIST");
+        }
 
-        Slice<Member> memberPage = memberRepository.findByDistance(post.getLocationX(), post.getLocationY(), pageable);
+
+        Geolocation geolocation = member.getGeolocation();
+        if(geolocation == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "GEOLOCATION_NOT_EXIST");
+        }
+
+        Slice<Member> memberPage = memberRepository.
+                findByDistance(member.getGeolocation().getLatitude(),member.getGeolocation().getLongitude(), pageable);
 
         return memberPage.map(m -> {
             return new MemberRecommendResponse(m, new PostResponse(m.getPost()));
@@ -194,5 +206,21 @@ public class MemberService implements UserDetailsService {
     private User createUser(String email, Member member) {
         GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().value());
         return new User(member.getEmail(), member.getPassword(), Collections.singleton(grantedAuthority));
+    }
+
+    //Geolocation
+    public void geolocation(Principal principal, GeolocationDto geolocationDto) {
+        Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
+        if(member.getGeolocation() == null) {
+            Geolocation geolocation = Geolocation.builder()
+                    .latitude(geolocationDto.getLatitude())
+                    .longitude(geolocationDto.getLongitude())
+                    .member(member)
+                    .build();
+            geolocationRepository.save(geolocation);
+        } else {
+            Geolocation geolocation = member.getGeolocation();
+            geolocation.update(geolocationDto.getLatitude(), geolocationDto.getLongitude());
+        }
     }
 }

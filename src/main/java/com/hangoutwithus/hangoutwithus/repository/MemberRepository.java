@@ -14,6 +14,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     void deleteMemberByEmail(String email);
 
-    @Query("select m from Member m order by (power (:x-m.post.locationX,2) + power(:y-m.post.locationY,2))")
-    Slice<Member> findByDistance(@Param("x") Integer locationX, @Param("y") Integer locationY, Pageable pageable);
+    @Query("select m from Member m order by (power (:latitude-m.geolocation.latitude,2) + power(:longitude-m.geolocation.longitude,2))")
+    Slice<Member> findByDistance(@Param("latitude") Double latitude, @Param("longitude") Double longitude, Pageable pageable);
 }

@@ -47,9 +47,9 @@ jwt:
   token_validity_in_seconds: 38400
 
 file:
-  path: /Users/gwonbj/Desktop/test/
+  path: /Users/gwonbj/Documents/hangoutwithus-pics/
 
 server:
   error:
-#    include-binding-errors: always
+    include-binding-errors: always
     include-message: always

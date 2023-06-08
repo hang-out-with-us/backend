@@ -36,8 +36,16 @@ public class JwtFilter extends OncePerRequestFilter {
         String refreshToken = request.getHeader(REFRESH_TOKEN_HEADER);
         String requestURI = request.getRequestURI();
 
-        TokenValidState accessTokenValidState = jwtTokenProvider.validateToken(jwt);
-        TokenValidState refreshTokenValidState = jwtTokenProvider.validateToken(refreshToken);
+        log.info("requestURI: {}", requestURI);
+        log.info("jwt: {}", jwt);
+        log.info("refreshToken: {}", refreshToken);
+
+        TokenValidState validState = jwtTokenProvider.authentication(jwt, refreshToken);
+
+        if(request.getRequestURI().startsWith("/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if((jwt == null || jwt.isEmpty()) && (refreshToken == null || refreshToken.isEmpty())) {
             log.info("JWT 토큰이 없습니다. uri: {}", requestURI);
@@ -45,16 +53,14 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (refreshTokenValidState == TokenValidState.VALIDATED &&
-                accessTokenValidState == TokenValidState.VALIDATED) {
+        if (validState == TokenValidState.VALIDATED) {
             //refreshToken과 jwt 토큰이 모두 유효한 경우
             Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             log.info("Security Context에 '{}' 인증 정보를 저장했습니다. uri: {}", authentication.getName(), requestURI);
             filterChain.doFilter(request, response);
         }
-        else if (refreshTokenValidState == TokenValidState.VALIDATED &&
-                accessTokenValidState == TokenValidState.EXPIRED) {
+        else if (validState == TokenValidState.EXPIRED) {
             //refreshToken이 유효하고, jwt 토큰이 만료된 경우
             log.info("JWT 토큰이 만료되었습니다. uri: {}", requestURI);
             response.getWriter().write("EXPIRED_ACCESS_TOKEN");

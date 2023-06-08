@@ -46,6 +46,11 @@ public class MemberController {
         return memberService.recommend(principal, pageable);
     }
 
+    @GetMapping("/logout")
+    @ApiOperation(value = "로그아웃")
+    public void logout(Principal principal) {
+        memberService.logout(principal);
+    }
 
     @DeleteMapping("/")
     @ApiOperation("회원 탈퇴")

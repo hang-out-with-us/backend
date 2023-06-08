@@ -1,6 +1,9 @@
 package com.hangoutwithus.hangoutwithus.jwt;
 
 
+import antlr.Token;
+import com.hangoutwithus.hangoutwithus.entity.RefreshToken;
+import com.hangoutwithus.hangoutwithus.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -27,14 +30,16 @@ public class JwtTokenProvider {
     private final String secret;
     private final long tokenValidityInMilliseconds;
     private final long refreshTokenValidityInMilliseconds;
-
     private Key key;
+    private final RefreshTokenRepository refreshTokenRepository;
+
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.token_validity_in_seconds}") long tokenValidityInSeconds) {
+            @Value("${jwt.token_validity_in_seconds}") long tokenValidityInSeconds, RefreshTokenRepository refreshTokenRepository) {
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.refreshTokenRepository = refreshTokenRepository;
         this.refreshTokenValidityInMilliseconds = 1000 * 60 * 60 * 24 * 7;
     }
 
@@ -72,12 +77,48 @@ public class JwtTokenProvider {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.refreshTokenValidityInMilliseconds);
 
-        return Jwts.builder()
+        String refreshTokenString = Jwts.builder()
                 .setSubject(authentication.getName())   //payload "sub": "name"
                 .claim(AUTHORITIES_KEY, authorities)    //payload "auth": "ROLE_USER"
                 .setExpiration(validity)                //payload "exp": "38400"
                 .signWith(key, SignatureAlgorithm.HS256)//header "alg": "HS256"
                 .compact();
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .email(authentication.getName())
+                .refreshToken(refreshTokenString)
+                .build();
+
+        if(refreshTokenRepository.findRefreshTokenByEmail(authentication.getName()).isPresent()){
+            refreshTokenRepository.deleteRefreshTokenByEmail(authentication.getName());
+        }
+
+        refreshTokenRepository.save(refreshToken);
+
+        return refreshTokenString;
+    }
+
+    public boolean validateRefreshToken(String refreshTokenString) {
+        try {
+            Authentication authentication = getAuthentication(refreshTokenString);
+            boolean isRefreshTokenExist = refreshTokenRepository.findRefreshTokenByEmail(authentication.getName()).isPresent();
+            if (validateToken(refreshTokenString) == TokenValidState.EXPIRED){
+                deleteRefreshToken(authentication);
+                return false;
+            }
+            if (!isRefreshTokenExist) {
+                return false;
+            }else{
+                RefreshToken refreshToken = refreshTokenRepository.findRefreshTokenByEmail(authentication.getName()).orElseThrow();
+                return refreshTokenString.equals(refreshToken.getRefreshToken());
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void deleteRefreshToken(Authentication authentication) {
+        refreshTokenRepository.deleteRefreshTokenByEmail(authentication.getName());
     }
     //token -> Authentication
     public Authentication getAuthentication(String token) {
@@ -117,7 +158,7 @@ public class JwtTokenProvider {
 
 
     //토큰 유효성 검증
-    public TokenValidState validateToken(String token) {
+    private TokenValidState validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return TokenValidState.VALIDATED;
@@ -133,6 +174,19 @@ public class JwtTokenProvider {
         } catch (IllegalArgumentException e) {
             log.info("JWT 토큰이 잘못되었습니다.");
             return TokenValidState.INVALID;
+        }
+    }
+
+    public TokenValidState authentication (String token,String refreshToken) {
+        boolean isRefreshTokenValid = validateRefreshToken(refreshToken);
+        TokenValidState tokenValidState = validateToken(token);
+        if (tokenValidState == TokenValidState.INVALID || !isRefreshTokenValid) {
+            deleteRefreshToken(getAuthentication(refreshToken));
+            return TokenValidState.INVALID;
+        }else if (tokenValidState == TokenValidState.EXPIRED){
+            return TokenValidState.EXPIRED;
+        } else {
+            return TokenValidState.VALIDATED;
         }
     }
 }

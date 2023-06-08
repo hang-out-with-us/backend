@@ -90,7 +90,7 @@ public class MemberService implements UserDetailsService {
 
         String jwt = jwtTokenProvider.createToken(authentication);
 
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByEmail(loginDto.getEmail());
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findRefreshTokenByEmail(loginDto.getEmail());
         String refreshJwt = jwtTokenProvider.createRefreshToken(authentication);
 
         if(refreshToken.isPresent()) {
@@ -180,7 +180,7 @@ public class MemberService implements UserDetailsService {
 
     //토큰 재발급
     public ResponseEntity<TokenDto> refresh(String refreshToken) {
-        if(jwtTokenProvider.validateToken(refreshToken) != TokenValidState.VALIDATED) {
+        if(!jwtTokenProvider.validateRefreshToken(refreshToken)) {
             throw new RuntimeException("Refresh Token이 유효하지 않습니다.");
         }
 
@@ -195,6 +195,10 @@ public class MemberService implements UserDetailsService {
         return ResponseEntity.ok(new TokenDto(jwt, refreshToken));
     }
 
+    public void logout(Principal principal) {
+        refreshTokenRepository.deleteRefreshTokenByEmail(principal.getName());
+    }
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return memberRepository.findMemberByEmail(email)
@@ -207,8 +211,8 @@ public class MemberService implements UserDetailsService {
         GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().value());
         return new User(member.getEmail(), member.getPassword(), Collections.singleton(grantedAuthority));
     }
-
     //Geolocation
+
     public void geolocation(Principal principal, GeolocationDto geolocationDto) {
         Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
         if(member.getGeolocation() == null) {

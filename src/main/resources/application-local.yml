@@ -22,17 +22,9 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: 1058432433866-hau4r3l9udgr6gg72lo9tpb6pe47mf82.apps.googleusercontent.com
-            client-secret: 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
-            redirect-uri: http://localhost:8080/auth/oauth2/code/google
-            scope:
-              - email
-              - profile
+  config:
+    import:
+      - application-oauth2.yml
 
 
 logging:

@@ -4,10 +4,8 @@ import com.hangoutwithus.hangoutwithus.dto.*;
 import com.hangoutwithus.hangoutwithus.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 
@@ -38,10 +36,5 @@ public class AuthController {
     @ApiOperation(value = "토큰 재발급")
     public ResponseEntity<TokenDto> refresh(@RequestHeader("X-Refresh-Token") String refreshToken) {
         return memberService.refresh(refreshToken);
-    }
-
-    @GetMapping("/errorTest")
-    public void errorTest() {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"에러 메시지");
     }
 }

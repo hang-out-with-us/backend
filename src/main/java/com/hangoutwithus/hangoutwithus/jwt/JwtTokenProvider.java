@@ -158,7 +158,7 @@ public class JwtTokenProvider {
 
 
     //토큰 유효성 검증
-    private TokenValidState validateToken(String token) {
+    public TokenValidState validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return TokenValidState.VALIDATED;
@@ -174,19 +174,6 @@ public class JwtTokenProvider {
         } catch (IllegalArgumentException e) {
             log.info("JWT 토큰이 잘못되었습니다.");
             return TokenValidState.INVALID;
-        }
-    }
-
-    public TokenValidState authentication (String token,String refreshToken) {
-        boolean isRefreshTokenValid = validateRefreshToken(refreshToken);
-        TokenValidState tokenValidState = validateToken(token);
-        if (tokenValidState == TokenValidState.INVALID || !isRefreshTokenValid) {
-            deleteRefreshToken(getAuthentication(refreshToken));
-            return TokenValidState.INVALID;
-        }else if (tokenValidState == TokenValidState.EXPIRED){
-            return TokenValidState.EXPIRED;
-        } else {
-            return TokenValidState.VALIDATED;
         }
     }
 }

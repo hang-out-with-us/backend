@@ -1,9 +1,11 @@
 package com.hangoutwithus.hangoutwithus.service;
 
 import com.hangoutwithus.hangoutwithus.dto.*;
-import com.hangoutwithus.hangoutwithus.entity.*;
+import com.hangoutwithus.hangoutwithus.entity.Geolocation;
+import com.hangoutwithus.hangoutwithus.entity.Member;
+import com.hangoutwithus.hangoutwithus.entity.MemberLike;
+import com.hangoutwithus.hangoutwithus.entity.Post;
 import com.hangoutwithus.hangoutwithus.jwt.JwtTokenProvider;
-import com.hangoutwithus.hangoutwithus.jwt.TokenValidState;
 import com.hangoutwithus.hangoutwithus.repository.GeolocationRepository;
 import com.hangoutwithus.hangoutwithus.repository.MemberLikeRepository;
 import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
@@ -33,8 +35,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -90,19 +90,9 @@ public class MemberService implements UserDetailsService {
 
         String jwt = jwtTokenProvider.createToken(authentication);
 
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findRefreshTokenByEmail(loginDto.getEmail());
         String refreshJwt = jwtTokenProvider.createRefreshToken(authentication);
 
-        if(refreshToken.isPresent()) {
-            refreshTokenRepository.save(refreshToken.get().updateToken(jwt));
-        } else {
-            refreshTokenRepository.save(RefreshToken.builder()
-                    .email(loginDto.getEmail())
-                    .refreshToken(refreshJwt)
-                    .build());
-        }
-
-        return new ResponseEntity<>(new TokenDto(jwt,refreshJwt), HttpStatus.OK);
+        return new ResponseEntity<>(new TokenDto(jwt, refreshJwt), HttpStatus.OK);
     }
 
     @Transactional(readOnly = true)
@@ -145,7 +135,7 @@ public class MemberService implements UserDetailsService {
         memberLikeRepository.save(memberLike);
 
         //상대방도 나를 좋아요 눌렀으면 자동으로 채팅방 생성
-        if(memberLikeRepository.findMemberLikesByLikeTo(me).stream().anyMatch(memberLike1 -> memberLike1.getLikeFrom().equals(target))){
+        if (memberLikeRepository.findMemberLikesByLikeTo(me).stream().anyMatch(memberLike1 -> memberLike1.getLikeFrom().equals(target))) {
             chatService.createRoom(me, target);
         }
     }
@@ -156,22 +146,23 @@ public class MemberService implements UserDetailsService {
         List<Member> membersWhoLikeMe = memberLikes.stream().map(MemberLike::getLikeFrom).collect(Collectors.toList());
         return membersWhoLikeMe.stream().map(MemberResponse::new).collect(Collectors.toList());
     }
+
     public Slice<MemberRecommendResponse> recommend(Principal principal, Pageable pageable) {
         Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
         Post post = member.getPost();
 
-        if(post == null) {
+        if (post == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "POST_NOT_EXIST");
         }
 
 
         Geolocation geolocation = member.getGeolocation();
-        if(geolocation == null) {
+        if (geolocation == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "GEOLOCATION_NOT_EXIST");
         }
 
         Slice<Member> memberPage = memberRepository.
-                findByDistance(member.getGeolocation().getLatitude(),member.getGeolocation().getLongitude(), pageable);
+                findByDistance(member.getGeolocation().getLatitude(), member.getGeolocation().getLongitude(), pageable);
 
         return memberPage.map(m -> {
             return new MemberRecommendResponse(m, new PostResponse(m.getPost()));
@@ -180,14 +171,14 @@ public class MemberService implements UserDetailsService {
 
     //토큰 재발급
     public ResponseEntity<TokenDto> refresh(String refreshToken) {
-        if(!jwtTokenProvider.validateRefreshToken(refreshToken)) {
+        if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
             throw new RuntimeException("Refresh Token이 유효하지 않습니다.");
         }
 
         Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
         String jwt = jwtTokenProvider.createToken(authentication);
 
-        if(jwtTokenProvider.isExpirationApproaching(refreshToken)) { //refreshToken 만료 2일 전
+        if (jwtTokenProvider.isExpirationApproaching(refreshToken)) { //refreshToken 만료 2일 전
             //refreshToken 재발급
             refreshToken = jwtTokenProvider.createRefreshToken(authentication);
         }
@@ -215,7 +206,7 @@ public class MemberService implements UserDetailsService {
 
     public void geolocation(Principal principal, GeolocationDto geolocationDto) {
         Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
-        if(member.getGeolocation() == null) {
+        if (member.getGeolocation() == null) {
             Geolocation geolocation = Geolocation.builder()
                     .latitude(geolocationDto.getLatitude())
                     .longitude(geolocationDto.getLongitude())

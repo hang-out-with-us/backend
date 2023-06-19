@@ -39,7 +39,7 @@ public class PostService {
 
     @Transactional
     public PostResponse post(Principal principal, PostRequest postRequest) {
-        if(memberRepository.findMemberByEmail(principal.getName()).orElseThrow().getPost() != null) {
+        if (postRepository.findAllByMemberId(memberRepository.findMemberByEmail(principal.getName()).orElseThrow().getId()).size() > 0) {
             throw new IllegalStateException("이미 작성한 글이 있습니다.");
         }
         Member member = memberRepository.findMemberByEmail(principal.getName()).orElseThrow();
@@ -73,7 +73,7 @@ public class PostService {
         int pos = file.getOriginalFilename().lastIndexOf(".");
         String ext = file.getOriginalFilename().substring(pos);
         String fileName = principal.getName() + UUID.randomUUID() + ext;
-        String filePath =  path + fileName;
+        String filePath = path + fileName;
 
         Image image = Image.builder()
                 .name(fileName)

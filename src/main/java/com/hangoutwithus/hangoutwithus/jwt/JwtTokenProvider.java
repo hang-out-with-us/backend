@@ -1,7 +1,6 @@
 package com.hangoutwithus.hangoutwithus.jwt;
 
 
-import antlr.Token;
 import com.hangoutwithus.hangoutwithus.entity.RefreshToken;
 import com.hangoutwithus.hangoutwithus.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
@@ -28,10 +27,11 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     private static final String AUTHORITIES_KEY = "auth";
     private final String secret;
+    //    private final long tokenValidityInMilliseconds;
     private final long tokenValidityInMilliseconds;
     private final long refreshTokenValidityInMilliseconds;
-    private Key key;
     private final RefreshTokenRepository refreshTokenRepository;
+    private Key key;
 
 
     public JwtTokenProvider(
@@ -89,7 +89,7 @@ public class JwtTokenProvider {
                 .refreshToken(refreshTokenString)
                 .build();
 
-        if(refreshTokenRepository.findRefreshTokenByEmail(authentication.getName()).isPresent()){
+        if (refreshTokenRepository.findRefreshTokenByEmail(authentication.getName()).isPresent()) {
             refreshTokenRepository.deleteRefreshTokenByEmail(authentication.getName());
         }
 
@@ -102,13 +102,13 @@ public class JwtTokenProvider {
         try {
             Authentication authentication = getAuthentication(refreshTokenString);
             boolean isRefreshTokenExist = refreshTokenRepository.findRefreshTokenByEmail(authentication.getName()).isPresent();
-            if (validateToken(refreshTokenString) == TokenValidState.EXPIRED){
+            if (validateToken(refreshTokenString) == TokenValidState.EXPIRED) {
                 deleteRefreshToken(authentication);
                 return false;
             }
             if (!isRefreshTokenExist) {
                 return false;
-            }else{
+            } else {
                 RefreshToken refreshToken = refreshTokenRepository.findRefreshTokenByEmail(authentication.getName()).orElseThrow();
                 return refreshTokenString.equals(refreshToken.getRefreshToken());
             }
@@ -120,6 +120,7 @@ public class JwtTokenProvider {
     public void deleteRefreshToken(Authentication authentication) {
         refreshTokenRepository.deleteRefreshTokenByEmail(authentication.getName());
     }
+
     //token -> Authentication
     public Authentication getAuthentication(String token) {
 

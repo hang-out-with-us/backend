@@ -10,17 +10,36 @@ spring:
       matching-strategy: ant_path_matcher
 
   jpa:
-    show-sql: true
     hibernate:
       ddl-auto: create
 
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  config:
+    import:
+      - file:/home/ubuntu/app/application-oauth2.yml
+
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+        type: trace
+
+
 server:
   port: ${SERVER_PORT}
+  error:
+    include-binding-errors: always
+    include-message: always
 
 jwt:
   secret: ${JWT_SECRET}

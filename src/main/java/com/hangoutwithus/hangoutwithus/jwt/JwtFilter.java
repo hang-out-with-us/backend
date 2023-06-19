@@ -1,19 +1,13 @@
 package com.hangoutwithus.hangoutwithus.jwt;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
-import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -35,22 +29,20 @@ public class JwtFilter extends OncePerRequestFilter {
         String jwt = resolveToken(request);
         String requestURI = request.getRequestURI();
 
-        if(request.getRequestURI().startsWith("/auth")) {
+        if (request.getRequestURI().startsWith("/auth")) {
             filterChain.doFilter(request, response);
             return;
         }
         TokenValidState tokenValidState = jwtTokenProvider.validateToken(jwt);
 
-        if(tokenValidState == TokenValidState.EXPIRED){
+        if (tokenValidState == TokenValidState.EXPIRED) {
             log.info("JWT 토큰이 만료되었습니다. uri: {}", requestURI);
             response.getWriter().write("EXPIRED_TOKEN");
-        }
-        else if(tokenValidState == TokenValidState.INVALID){
+        } else if (tokenValidState == TokenValidState.INVALID) {
             log.info("유효하지 않은 JWT 토큰입니다. uri: {}", requestURI);
             jwtTokenProvider.deleteRefreshToken(jwtTokenProvider.getAuthentication(jwt));
             response.getWriter().write("INVALID_TOKEN");
-        }
-        else if(tokenValidState == TokenValidState.VALIDATED){
+        } else if (tokenValidState == TokenValidState.VALIDATED) {
             Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             log.info("Security Context에 '{}' 인증 정보를 저장했습니다. uri: {}", authentication.getName(), requestURI);

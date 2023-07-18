@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,15 +34,24 @@ public class Member extends BaseEntity {
     @Column
     private Boolean isCompletedSignup;
 
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Post post;
 
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Geolocation geolocation;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ChatRoomInfo> chatRooms;
+
+    @OneToMany(mappedBy = "likeTo", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<MemberLike> likeToList;
+
+    @OneToMany(mappedBy = "likeFrom", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<MemberLike> likeFromList;
+
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
 
 
     public void addPost(Post post) {

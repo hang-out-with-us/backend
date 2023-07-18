@@ -265,6 +265,9 @@ Token만을 이용해 요청을 보내는 방식으로 수정했습니다.~~
 - [x]  채팅기능 구현
 - [x]  파일 업로드 처리
 - [x]  OAuth2 구현
+- [ ]  추천 알고리즘
+- [ ]  관심사 태그
+- [ ]  푸시 알림
 - [ ]  바뀐 도메인 설계 수정
 - [ ]  Response 체계화
 - [ ]  ExceptionHandler, ControllerAdvice 적용해서 예외처리

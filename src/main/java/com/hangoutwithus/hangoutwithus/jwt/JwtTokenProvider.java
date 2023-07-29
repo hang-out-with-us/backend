@@ -2,7 +2,7 @@ package com.hangoutwithus.hangoutwithus.jwt;
 
 
 import com.hangoutwithus.hangoutwithus.entity.RefreshToken;
-import com.hangoutwithus.hangoutwithus.repository.RefreshTokenRepository;
+import com.hangoutwithus.hangoutwithus.repository.RefreshTokenRedisRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -30,16 +30,15 @@ public class JwtTokenProvider {
     //    private final long tokenValidityInMilliseconds;
     private final long tokenValidityInMilliseconds;
     private final long refreshTokenValidityInMilliseconds;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRedisRepository refreshTokenRepository;
     private Key key;
-
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.token_validity_in_seconds}") long tokenValidityInSeconds, RefreshTokenRepository refreshTokenRepository) {
+            @Value("${jwt.token_validity_in_seconds}") long tokenValidityInSeconds, RefreshTokenRedisRepository refreshTokenRedisRepository) {
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
-        this.refreshTokenRepository = refreshTokenRepository;
+        this.refreshTokenRepository = refreshTokenRedisRepository;
         this.refreshTokenValidityInMilliseconds = 1000 * 60 * 60 * 24 * 7;
     }
 
@@ -92,6 +91,7 @@ public class JwtTokenProvider {
         if (refreshTokenRepository.findRefreshTokenByEmail(authentication.getName()).isPresent()) {
             refreshTokenRepository.deleteRefreshTokenByEmail(authentication.getName());
         }
+
 
         refreshTokenRepository.save(refreshToken);
 

@@ -1,15 +1,12 @@
 package com.hangoutwithus.hangoutwithus.service;
 
 import com.hangoutwithus.hangoutwithus.dto.*;
-import com.hangoutwithus.hangoutwithus.entity.Geolocation;
-import com.hangoutwithus.hangoutwithus.entity.Member;
-import com.hangoutwithus.hangoutwithus.entity.MemberLike;
-import com.hangoutwithus.hangoutwithus.entity.Post;
+import com.hangoutwithus.hangoutwithus.entity.*;
 import com.hangoutwithus.hangoutwithus.jwt.JwtTokenProvider;
 import com.hangoutwithus.hangoutwithus.repository.GeolocationRepository;
 import com.hangoutwithus.hangoutwithus.repository.MemberLikeRepository;
 import com.hangoutwithus.hangoutwithus.repository.MemberRepository;
-import com.hangoutwithus.hangoutwithus.repository.RefreshTokenRepository;
+import com.hangoutwithus.hangoutwithus.repository.RefreshTokenRedisRepository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,7 +46,7 @@ public class MemberService implements UserDetailsService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ChatService chatService;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRedisRepository refreshTokenRepository;
     private final GeolocationRepository geolocationRepository;
 
     @Value("${file.path}")
@@ -57,7 +54,7 @@ public class MemberService implements UserDetailsService {
 
 
     //CRUD
-    public MemberService(MemberRepository memberRepository, MemberLikeRepository memberLikeRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, JwtTokenProvider jwtTokenProvider, ChatService chatService, RefreshTokenRepository refreshTokenRepository, GeolocationRepository geolocationRepository) {
+    public MemberService(MemberRepository memberRepository, MemberLikeRepository memberLikeRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, JwtTokenProvider jwtTokenProvider, ChatService chatService, RefreshTokenRedisRepository refreshTokenRepository, GeolocationRepository geolocationRepository) {
         this.memberRepository = memberRepository;
         this.memberLikeRepository = memberLikeRepository;
         this.passwordEncoder = passwordEncoder;
@@ -91,6 +88,11 @@ public class MemberService implements UserDetailsService {
         String jwt = jwtTokenProvider.createToken(authentication);
 
         String refreshJwt = jwtTokenProvider.createRefreshToken(authentication);
+
+        refreshTokenRepository.save(RefreshToken.builder()
+                .email(loginDto.getEmail())
+                .refreshToken(refreshJwt)
+                .build());
 
         return new ResponseEntity<>(new TokenDto(jwt, refreshJwt), HttpStatus.OK);
     }

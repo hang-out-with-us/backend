@@ -3,7 +3,7 @@
 ## 기획의도
 
 번화가에서 다른 사람들과 같이 만나서 놀고 싶을 때 실시간으로 매칭 시켜주는 앱 입니다. Sprint boot, Spring Data JPA, JWT, OAuth2, CI/CD 를 학습하고 적용해보기 위한
-프로젝트입니다. 스토어에 런칭하여 실사용자가 있는 서비스를 만드는 것이 목표입니다.
+프로젝트입니다.
 
 ## 개발환경 및 Stack
 
@@ -27,25 +27,33 @@
         - IAM
         - CodeDeploy
 
+## **TODO**
+
+- [x]  local, dev, prod 개발 환경 분리
+- [x]  배포 자동화
+- [x]  Spring Security 로 JWT 토큰 인증 구현
+- [x]  JWT Refresh Token 구현
+- [x]  채팅기능 구현
+- [x]  파일 업로드 처리
+- [x]  OAuth2 구현
+- [ ]  추천 알고리즘
+- [ ]  푸시 알림
+
 ## 기능 목록
 
 - 회원 기능
     - 회원 가입
         - 이메일, 비밀번호
     - 로그인
+        - JWT
+            - Refresh Token 구현, Redis 사용
     - 회원 탈퇴
-    - 소셜 로그인 (추후 추가.)
-        - 애플
-        - 네이버
-        - 카카오
-        - etc..
-        - 참고 문서
-            - https://deeplify.dev/back-end/spring/oauth2-social-login
+    - 소셜 로그인
 - 게시글
     - 등록
     - 수정
-        - 이미지 업로드
     - 삭제
+    - 이미지 업로드
 - 추천 기능
     - 가까운 지역에서 인원 수와 관심사가 맞는 사람을 추천
 - 매칭 기능
@@ -118,6 +126,13 @@
 
 ![CI/CD](https://i.ibb.co/hsnmgcj/Screenshot-2023-01-28-at-9-52-26-PM.png)
 
+1. github에 커밋 푸시
+2. github actions 실행
+3. github actions에서 build와 test 진행
+4. build, test 성공하면 AWS S3에 빌드 파일 전송
+5. AWS code deploy에 deploy 요청
+6. build 파일 전송, 작성한 스크립트를 통해 EC2에 배포
+
 ## 서비스 세부 설명
 
 ## **Spring Security**
@@ -145,7 +160,7 @@ Refresh Token을 통해 인증을 하지 못하게 한다. → Stateless 인증�
 
 이 때 refresh token을 사용하면 stateless의 장점이 결국 없어지는 것 아닌지, session과 다를 바 없지 않냐고 의구심이 들 수 있는데 Refresh Token에 접근하는 경우는 로그인,
 로그아웃, Access Token의 재발급 시점 정도로 서비스를 이용하기 위해 수시로 session에 접근해야하는 것 보다 빈도수가 현저히 낮다. 또한 Redis와 같은 인메모리 데이터베이스를 사용해서 DB 접근으로
-인한 성능상 문제를 개선할 수 있다 (현재 프로젝트에선 적용하지 않음)
+인한 성능상 문제를 개선할 수 있다.
 
 ~~현재 프로젝트에서 API요청시 마다 JWT와 Refresh Token을 함께 전송해 매번 Refresh Token을 검증했었는데, 이 방식은 Session을 사용하는 것과 다를 바 없어서 Access
 Token만을 이용해 요청을 보내는 방식으로 수정했습니다.~~
@@ -256,18 +271,3 @@ Token만을 이용해 요청을 보내는 방식으로 수정했습니다.~~
     - 이 프로젝트에서 가장 어려움이 많았던 파트였습니다. 프로젝트를 진행하기 전까지는 보안 개념이 전무하다 싶었습니다. 하지만 이 프로젝트를 진행하면서 보안에 대한 이해도가 높아졌고, JWT, Refresh
       Token, Oauth2를 구현한 경험으로 Spring Security를 완벽히 이해하진 않지만, 기본적인 흐름을 파악하는 데에 성공했습니다.
 
-## **TODO**
-
-- [x]  local, dev, prod 개발 환경 분리
-- [x]  배포 자동화
-- [x]  Spring Security 로 JWT 토큰 인증 구현
-- [x]  JWT Refresh Token 구현
-- [x]  채팅기능 구현
-- [x]  파일 업로드 처리
-- [x]  OAuth2 구현
-- [ ]  추천 알고리즘
-- [ ]  관심사 태그
-- [ ]  푸시 알림
-- [ ]  바뀐 도메인 설계 수정
-- [ ]  Response 체계화
-- [ ]  ExceptionHandler, ControllerAdvice 적용해서 예외처리
